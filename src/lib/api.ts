@@ -157,6 +157,42 @@ export async function api<T = any>(path: string, options: RequestInit = {}): Pro
     return { total_users, total_creators, total_mods, published_content, pending_submissions } as T;
   }
 
+  if (cleanPath === "/admin/moderation" && method === "GET") {
+    await hasRole("admin");
+    const { data, error } = await client.from("mods")
+      .select("id,title,slug,description,status,created_at,categories(name),creator_id")
+      .in("status", ["pending_review", "under_review"])
+      .order("created_at", { ascending: true }).limit(100);
+    if (error) throw error;
+    const rows = (data || []) as unknown as ModRow[];
+    const names = await creatorNames(rows);
+    return { items: rows.map((row) => shape(row, names)) } as T;
+  }
+
+  if (cleanPath.startsWith("/admin/mods/") && method === "POST") {
+    await hasRole("admin");
+    const parts = cleanPath.split("/");
+    const modId = parts[3];
+    const action = parts[4];
+    const reason = (body as { reason?: string })?.reason || "";
+    const status = action === "approve" ? "published" : action === "reject" ? "rejected" : action === "request-changes" ? "changes_requested" : null;
+    if (!status) throw new Error("Unknown moderation action.");
+    const { data: updated, error } = await client.from("mods").update({
+      status, moderation_feedback: reason, updated_at: new Date().toISOString(),
+      ...(status === "published" ? { published_at: new Date().toISOString() } : {}),
+    }).eq("id", modId).select("id,creator_id").single();
+    if (error) throw error;
+    const { error: logError } = await client.from("moderation_logs").insert({
+      admin_id: (await currentUser()).id, mod_id: modId, action, reason,
+    });
+    if (logError) throw logError;
+    const { error: activityError } = await client.from("admin_activity_logs").insert({
+      admin_id: (await currentUser()).id, action, target_type: "mod", target_id: modId,
+    });
+    if (activityError) throw activityError;
+    return { ok: true, status: updated ? status : null } as T;
+  }
+
   if (cleanPath.startsWith("/downloads/") && method === "POST") {
     const user = await currentUser();
     const modId = cleanPath.slice("/downloads/".length);
