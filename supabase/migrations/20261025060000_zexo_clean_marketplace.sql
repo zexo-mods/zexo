@@ -155,8 +155,8 @@ as $$
   );
 $$;
 revoke all on function private.is_admin() from public;
-grant usage on schema private to authenticated;
-grant execute on function private.is_admin() to authenticated;
+grant usage on schema private to anon, authenticated;
+grant execute on function private.is_admin() to anon, authenticated;
 
 create or replace function public.handle_new_user()
 returns trigger
