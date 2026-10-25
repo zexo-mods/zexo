@@ -32,7 +32,13 @@ export function CreatorUploadForm({ categories }: { categories: Category[] }) {
 
       let currentDraftId = draftId
       if (!currentDraftId) {
-        const created = await createDraftAddOn(data)
+        // Keep binary files out of the Server Action request. The pack is uploaded
+        // directly from this browser to Supabase Storage below.
+        const draftData = new FormData()
+        for (const field of ['title', 'short_description', 'description', 'category_id', 'version', 'minecraft_version']) {
+          draftData.set(field, String(data.get(field) ?? ''))
+        }
+        const created = await createDraftAddOn(draftData)
         if (created.error || !created.id) throw new Error(created.error ?? 'Could not create your draft.')
         currentDraftId = created.id
         setDraftId(currentDraftId)
