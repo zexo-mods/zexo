@@ -11,7 +11,7 @@ export async function downloadAddOn(formData: FormData) {
 
   const supabase = await createClient()
   const { data: file, error } = await supabase.from('add_on_files')
-    .select('id,storage_path,add_ons!inner(id,status)')
+    .select('id,storage_path,file_name,add_ons!inner(id,status)')
     .eq('id', fileId)
     .eq('add_on_id', addonId)
     .eq('scan_status', 'clean')
@@ -28,20 +28,20 @@ export async function downloadAddOn(formData: FormData) {
   const admin = createAdminClient()
   const { data: signed, error: signedError } = await admin.storage
     .from('mod-files')
-    .createSignedUrl(file.storage_path, 60)
+    .createSignedUrl(file.storage_path, 300, { download: file.file_name })
 
   if (signedError || !signed?.signedUrl) {
-    redirect('/explore?error=Could%20not%20prepare%20download')
+    redirect('/explore?error=' + encodeURIComponent(signedError?.message ?? 'Could not prepare download'))
   }
 
+  // Download analytics must never block a valid file download.
   const { data: claimsData } = await supabase.auth.getClaims()
-  const { error: recordError } = await admin.from('downloads').insert({
+  await admin.from('downloads').insert({
     user_id: claimsData?.claims?.sub ?? null,
     add_on_id: addonId,
     file_id: fileId,
   })
 
-  if (recordError) redirect('/explore?error=' + encodeURIComponent(recordError.message))
   redirect(signed.signedUrl)
 }
 
