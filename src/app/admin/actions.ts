@@ -23,6 +23,7 @@ export async function moderateAddOn(formData: FormData) {
     request_changes: 'changes_requested',
     publish: 'published',
     reject: 'rejected',
+    copyright: 'rejected',
     suspend: 'suspended',
     restore: 'published',
   }
@@ -39,7 +40,7 @@ export async function moderateAddOn(formData: FormData) {
 
   const { error: updateError } = await admin.from('add_ons').update({
     status: nextStatus,
-    moderation_feedback: reason || null,
+    moderation_feedback: action === 'copyright' ? (reason ? 'Copyright concern: ' + reason : 'Copyright concern: submission flagged for possible copyright infringement.') : reason || null,
     published_at: nextStatus === 'published' ? addon.published_at ?? new Date().toISOString() : null,
     updated_at: new Date().toISOString(),
   }).eq('id', addOnId)
@@ -53,6 +54,7 @@ export async function moderateAddOn(formData: FormData) {
     request_changes: 'The review team requested changes to your add-on.',
     publish: 'Your add-on is now published on ZEXO.',
     reject: 'Your add-on submission was rejected.',
+    copyright: 'Your add-on submission was rejected because of a copyright concern. Please contact support if you believe this is a mistake.',
     suspend: 'Your add-on has been suspended.',
     restore: 'Your add-on has been restored.',
   }
