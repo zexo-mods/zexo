@@ -8,7 +8,7 @@ ZEXO is an Android-first Minecraft Bedrock community marketplace for add-ons, sh
 - Capacitor Android wrapper (com.zexo.app)
 - GitHub repository: https://github.com/zexo-mods/zexo
 
-The active frontend data layer uses Supabase directly. Do not deploy the legacy Cloudflare Worker or D1/R2 code.
+The app now uses Supabase directly. The unused legacy Cloudflare Worker/D1/R2 backend has been removed from this repository.
 
 ## Connect Supabase
 1. Run npm install.
@@ -22,7 +22,7 @@ The active frontend data layer uses Supabase directly. Do not deploy the legacy 
 - Project URL: https://fwjbccoqrzjafbeecwwr.supabase.co
 - Region: Singapore (ap-southeast-1)
 
-The initial schema is in supabase/migrations/20261025000000_zexo_marketplace_initial_schema.sql and has already been applied to the linked project. It creates profiles, role assignments, creators, categories, mods, file metadata, favorites, downloads, reports, notifications, and moderation audit tables. RLS is enabled on every public table. Storage buckets are mod-files (private) and mod-images (public).
+The schema is in supabase/migrations/20261025000000_zexo_marketplace_initial_schema.sql and has been applied to the linked project. The creator submission policy is in supabase/migrations/20261025010000_creator_submit_for_moderation.sql and has also been applied. The database includes profiles, role assignments, creator profiles, categories, mods, file metadata, favorites, downloads, reports, notifications, and moderation audit tables. RLS is enabled on every public table. Storage buckets are mod-files (private) and mod-images (public).
 
 ## First admin and creator setup
 1. Register your own account in the app and verify your email if confirmation is enabled.
@@ -38,14 +38,24 @@ The initial schema is in supabase/migrations/20261025000000_zexo_marketplace_ini
     select id, 'creator' from auth.users where lower(email) = lower('CREATOR_EMAIL')
     on conflict do nothing;
 
-4. Never allow users to edit their own roles.
+4. Never allow users to edit their own roles. Admin and creator roles are managed separately from editable profile data.
 
-## Current implementation status
-- Public browsing and email/password authentication are wired to Supabase.
-- Creator draft creation and admin overview queries use Supabase RLS.
-- Creator upload UI, admin moderation actions, file scanning/quarantine, and production deployment still require implementation and testing.
-- Uploaded files are limited to 100 MB. Storage does not scan files for malware by itself.
-- Do not mark files as clean until a trusted scanning process has checked them. Downloads only return files with scan_status = clean.
+## Implemented
+- Public published-mod browsing and search use Supabase.
+- Email/password sign-up and sign-in use Supabase Auth.
+- New account profiles are created by a database trigger.
+- Creator package uploads support .mcpack, .mcaddon, .mcworld, .mctemplate, and .zip, with a 100 MB limit and ZIP signature check.
+- Creator submissions enter the admin moderation queue.
+- Admin overview and approve/reject/request-changes actions use Supabase and record moderation logs.
+- Private mod files are stored in the mod-files bucket; public thumbnails can use mod-images.
+- Downloads use short-lived signed URLs and require a clean scan status.
+
+## Still required before production
+- Add your publishable key to local .env and verify Auth email settings and redirect URLs.
+- Promote your owner account to admin using the SQL above.
+- Implement and connect a trusted malware-scanning/quarantine service. Storage does not scan uploads automatically; do not set scan_status to clean without a real scan.
+- Complete profile/favorites screens, detailed admin management pages, rate limits, and production deployment.
+- Run and fix the full Vite/TypeScript build and test it on desktop and Android. No APK/AAB has been built or published by this integration step.
 
 ## Local development
     npm install
