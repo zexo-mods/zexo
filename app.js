@@ -1,0 +1,2 @@
+document.getElementById("year").textContent=new Date().getFullYear();
+document.querySelectorAll("[data-category]").forEach(card=>{card.addEventListener("click",()=>{const category=card.dataset.category;const target=document.querySelector("#discover .section-description");if(target)target.textContent=category+" collection selected. Creator uploads and verified downloads are coming soon.";});});
