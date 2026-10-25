@@ -202,22 +202,23 @@ create policy "users view own roles" on public.user_roles for select to authenti
 create policy "admins manage roles" on public.user_roles for all to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
 
 create policy "creator profiles are public" on public.creator_profiles for select to anon, authenticated using (verification_status = 'verified' or user_id = (select auth.uid()) or (select private.is_admin()));
-create policy "creators manage own creator profile" on public.creator_profiles for all to authenticated using (user_id = (select auth.uid()) or (select private.is_admin())) with check (user_id = (select auth.uid()) or (select private.is_admin()));
+create policy "creators manage own creator profile" on public.creator_profiles for all to authenticated using (user_id = (select auth.uid()) or (select private.is_admin())) with check ((user_id = (select auth.uid()) and verification_status in ('unverified','pending')) or (select private.is_admin()));
 
 create policy "active categories are public" on public.categories for select to anon, authenticated using (active = true or (select private.is_admin()));
 create policy "admins manage categories" on public.categories for all to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
 
 create policy "published add-ons are public" on public.add_ons for select to anon, authenticated using (status = 'published' or creator_id = (select auth.uid()) or (select private.is_admin()));
-create policy "creators create own add-ons" on public.add_ons for insert to authenticated with check (creator_id = (select auth.uid()));
-create policy "creators update own unpublished add-ons" on public.add_ons for update to authenticated using (creator_id = (select auth.uid()) and status in ('draft','changes_requested') or (select private.is_admin())) with check (creator_id = (select auth.uid()) or (select private.is_admin()));
+create policy "creators create own draft add-ons" on public.add_ons for insert to authenticated with check (creator_id = (select auth.uid()) and status = 'draft');
+create policy "creators update own draft add-ons" on public.add_ons for update to authenticated using ((creator_id = (select auth.uid()) and status in ('draft','changes_requested')) or (select private.is_admin())) with check ((creator_id = (select auth.uid()) and status in ('draft','pending_review','changes_requested')) or (select private.is_admin()));
 create policy "admins delete add-ons" on public.add_ons for delete to authenticated using ((select private.is_admin()));
 
 create policy "files visible for published add-ons" on public.add_on_files for select to anon, authenticated using (
   exists (select 1 from public.add_ons a where a.id = add_on_id and (a.status = 'published' or a.creator_id = (select auth.uid()) or (select private.is_admin())))
 );
-create policy "creators manage own files" on public.add_on_files for all to authenticated using (
+create policy "creators insert own files" on public.add_on_files for insert to authenticated with check (
   exists (select 1 from public.add_ons a where a.id = add_on_id and (a.creator_id = (select auth.uid()) or (select private.is_admin())))
-) with check (
+);
+create policy "creators delete own files" on public.add_on_files for delete to authenticated using (
   exists (select 1 from public.add_ons a where a.id = add_on_id and (a.creator_id = (select auth.uid()) or (select private.is_admin())))
 );
 
@@ -245,7 +246,19 @@ create policy "admins view audit logs" on public.admin_audit_logs for select to 
 create policy "admins create audit logs" on public.admin_audit_logs for insert to authenticated with check ((select private.is_admin()) and admin_id = (select auth.uid()));
 
 grant select on public.categories, public.add_ons, public.add_on_files, public.add_on_images, public.creator_profiles, public.profiles to anon, authenticated;
-grant select, insert, update, delete on public.profiles, public.user_roles, public.creator_profiles, public.add_ons, public.add_on_files, public.add_on_images, public.favorites, public.downloads, public.reports, public.notifications to authenticated;
+grant select, insert, update on public.profiles to authenticated;
+grant select, insert, update on public.user_roles to authenticated;
+grant select, insert, update on public.creator_profiles to authenticated;
+grant insert (creator_id, category_id, title, slug, short_description, description, thumbnail_path, version, minecraft_versions, tags, credits, license, status) on public.add_ons to authenticated;
+grant update (category_id, title, slug, short_description, description, thumbnail_path, version, minecraft_versions, tags, credits, license, status) on public.add_ons to authenticated;
+grant delete on public.add_ons to authenticated;
+grant insert (add_on_id, storage_path, file_name, file_type, file_size, file_version) on public.add_on_files to authenticated;
+grant delete on public.add_on_files to authenticated;
+grant insert, update, delete on public.add_on_images to authenticated;
+grant select, insert, delete on public.favorites to authenticated;
+grant select, insert on public.downloads to authenticated;
+grant select, insert on public.reports to authenticated;
+grant select, update on public.notifications to authenticated;
 grant select, insert on public.moderation_events, public.admin_audit_logs to authenticated;
 grant usage, select on all sequences in schema public to authenticated;
 
