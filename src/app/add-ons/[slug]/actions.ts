@@ -20,10 +20,10 @@ export async function downloadAddOn(formData: FormData) {
   const { data: signed, error: signedError } = await admin.storage.from('mod-files').createSignedUrl(file.storage_path, 60)
   if (signedError || !signed?.signedUrl) redirect('/explore?error=Could%20not%20prepare%20download')
 
-  const { data: claimsData } = await supabase.auth.getClaims()
-  const userId = claimsData?.claims?.sub
-  if (userId) {
-    await supabase.from('downloads').insert({ user_id: userId, add_on_id: addonId, file_id: fileId })
-  }
+  const { error: recordError } = await supabase.rpc('record_download', {
+    p_add_on_id: addonId,
+    p_file_id: fileId,
+  })
+  if (recordError) redirect('/explore?error=' + encodeURIComponent(recordError.message))
   redirect(signed.signedUrl)
 }
