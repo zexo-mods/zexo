@@ -13,6 +13,7 @@ const categories = [
 export default async function HomePage() {
   let publishedCount = 0
   let user: { email?: string } | null = null
+  let isAdmin = false
   try {
     const supabase = await createClient()
     const [{ count }, { data: { user: currentUser } }] = await Promise.all([
@@ -21,13 +22,17 @@ export default async function HomePage() {
     ])
     publishedCount = count ?? 0
     user = currentUser ? { email: currentUser.email } : null
+    if (currentUser) {
+      const { data: adminRole } = await supabase.from('user_roles').select('role').eq('user_id', currentUser.id).eq('role', 'admin').maybeSingle()
+      isAdmin = Boolean(adminRole)
+    }
   } catch { /* The public landing page remains available before environment setup. */ }
 
   return <main className="min-h-screen overflow-hidden">
     <header className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 lg:px-8">
       <Link href="/" className="text-2xl font-black tracking-[.22em]">ZEXO<span className="text-red-500">.</span></Link>
       <nav className="hidden items-center gap-8 text-sm text-zinc-400 md:flex"><Link href="#explore" className="hover:text-white">Explore</Link><Link href="/creators" className="hover:text-white">Creators</Link><Link href="/about" className="hover:text-white">About</Link></nav>
-      <div className="flex items-center gap-3">{user ? <><Link href="/creator" className="rounded-full bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-400">Creator Portal</Link><form action={signOut}><button type="submit" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-zinc-400">Log out</button></form></> : <><Link href="/login" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-zinc-400">Log in</Link><Link href="/signup" className="rounded-full bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-400">Join ZEXO</Link></>}</div>
+      <div className="flex items-center gap-3">{user ? <>{isAdmin && <Link href="/admin" className="rounded-full border border-red-500/50 px-4 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/10">Admin Desktop</Link>}<Link href="/creator" className="rounded-full bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-400">Creator Portal</Link><form action={signOut}><button type="submit" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-zinc-400">Log out</button></form></> : <><Link href="/login" className="rounded-full border border-zinc-700 px-4 py-2 text-sm hover:border-zinc-400">Log in</Link><Link href="/signup" className="rounded-full bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-400">Join ZEXO</Link></>}</div>
     </header>
 
     <section className="relative mx-auto max-w-7xl px-5 pb-20 pt-16 lg:px-8 lg:pb-28 lg:pt-24">
