@@ -1,1 +1,0 @@
-{"name":"zexo-api","private":true,"type":"module","scripts":{"dev":"wrangler dev","deploy":"wrangler deploy","db:apply":"wrangler d1 execute zexo-production --remote --file=schema.sql"},"dependencies":{"@aws-sdk/client-s3":"^3.850.0","@aws-sdk/s3-request-presigner":"^3.850.0"},"devDependencies":{"wrangler":"^4.30.0"}}
