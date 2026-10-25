@@ -3,6 +3,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
+const AUTH_CALLBACK_URL = 'https://zexo.zexomods.workers.dev/auth/callback'
+
 export async function signIn(formData: FormData) {
   const email = String(formData.get('email') ?? '').trim()
   const password = String(formData.get('password') ?? '')
@@ -10,7 +12,12 @@ export async function signIn(formData: FormData) {
 
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithPassword({ email, password })
-  if (error) redirect('/login?error=' + encodeURIComponent(error.message))
+  if (error) {
+    if (error.code === 'email_not_confirmed') {
+      redirect('/login?error=' + encodeURIComponent('Please confirm your email using the link we sent you. Check your inbox and spam folder.'))
+    }
+    redirect('/login?error=' + encodeURIComponent(error.message))
+  }
   redirect('/creator')
 }
 
@@ -25,7 +32,10 @@ export async function signUp(formData: FormData) {
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { user_name: username, display_name: username } },
+    options: {
+      data: { user_name: username, display_name: username },
+      emailRedirectTo: AUTH_CALLBACK_URL,
+    },
   })
   if (error) redirect('/signup?error=' + encodeURIComponent(error.message))
   redirect('/login?checkEmail=1')
