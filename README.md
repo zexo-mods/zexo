@@ -1,28 +1,39 @@
 # ZEXO — Minecraft Bedrock Marketplace
 
-A clean rebuild of ZEXO using Next.js App Router, TypeScript, Tailwind CSS and Supabase.
+ZEXO is a mobile-first community marketplace for Minecraft Bedrock add-ons, shaders, maps, texture packs, skins and worlds.
 
-## Stack
-- Next.js 15 + React 19 + TypeScript
-- Supabase Auth, Postgres, Row Level Security and Storage
-- Mobile-first web UI, prepared for Capacitor Android packaging
+## Technology
+- GitHub: source control and CI checks.
+- Cloudflare Workers: full-stack Next.js hosting and Git-connected deployments.
+- Supabase: authentication, PostgreSQL, row-level security and private file storage.
+- Next.js 15 / React 19 / TypeScript / Tailwind CSS.
 
-## Setup
-1. Install Node.js 20+.
-2. Copy `.env.example` to `.env.local`.
-3. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from the Supabase project.
-4. Keep `SUPABASE_SECRET_KEY` server-only. Never commit real secrets or prefix them with `NEXT_PUBLIC_`.
-5. Install dependencies with `npm install`.
-6. Run `npm run dev`.
+## Main website features
+- Public homepage, creator directory, marketplace browse, search and category filters.
+- Add-on detail pages with secure signed downloads and community reports.
+- Email/password registration, login and logout through Supabase Auth.
+- Creator upload portal for Bedrock pack files (100 MB app limit) and submission tracking.
+- Desktop moderation console with private review links, manual file status decisions, publishing, rejection and report handling.
+- Moderation events, audit records and creator notifications.
 
-## Database
-Apply `supabase/migrations/20261025060000_zexo_clean_marketplace.sql` to the connected Supabase project. The migration enables RLS on every exposed application table and creates private file storage policies.
+## Local setup
+1. Install Node.js 22 or later.
+2. Copy .env.example to .env.local.
+3. Configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.
+4. Configure SUPABASE_SECRET_KEY as a server-only secret. Never expose it to the browser.
+5. Run npm install, then npm run dev.
+
+See docs/SETUP.md for the full Supabase and Cloudflare setup guide.
 
 ## Deployment
-Deploy the Next.js app on a full-stack host such as Vercel. GitHub Pages is not suitable for this dynamic application. Configure the same environment variables in the host dashboard.
+The production target is Cloudflare Workers using the OpenNext Cloudflare adapter. Connect zexo-mods/zexo to a Worker named zexo, configure the Supabase variables and deploy from the main branch. See docs/CLOUDFLARE_DEPLOY.md.
 
-## Android
-Capacitor packaging is a later stage after the web application and auth flows are tested. No APK is included yet.
+## Safety and launch notes
+- Uploaded files are private until an administrator reviews them.
+- File safety review is manual; automated malware scanning is not integrated.
+- Review legal pages and configure monitoring, backups and abuse workflows before broad public launch.
+- Creator payouts and payment processing are not implemented.
+- Capacitor Android packaging and APK/AAB generation are a separate follow-up; no Android binary is included.
 
-## Status
-This is the initial foundation. Creator submission UI, admin dashboard, moderation workflows, notifications, analytics, automated tests and Capacitor packaging are staged for subsequent implementation.
+## CI
+GitHub Actions runs lint, TypeScript checks and a Cloudflare-adapted production build on pushes and pull requests to main.
