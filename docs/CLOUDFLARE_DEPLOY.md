@@ -7,11 +7,11 @@ ZEXO uses Next.js 15 and the OpenNext Cloudflare adapter. GitHub remains the sou
 - Repository: `zexo-mods/zexo`
 - Production branch: `main`
 - Root directory: repository root
-- Build command: `npm run build`
+- Build command: `npm run cf-build`
 - Deploy command: `npm run deploy`
 - Preview command: `npm run preview`
 
-The build command generates the OpenNext output once. The deploy and preview commands then publish or run that already-built output.
+The `cf-build` script runs the OpenNext Cloudflare build. The regular `build` script is intentionally `next build`, which OpenNext invokes internally. Do not set the Cloudflare Build command to `npm run build`, because that skips the Cloudflare adapter build.
 
 ## Required environment variables
 
