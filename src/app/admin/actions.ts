@@ -34,6 +34,7 @@ export async function moderateAddOn(formData: FormData) {
   if (addonError || !addon) redirect('/admin?error=Add-on%20not%20found')
 
   if (action === 'publish') {
+    // ZEXO publish-fix deployment marker: approve attached files before changing add-on status.
     // Publishing is the administrator's explicit approval after manual file review.
     // Mark the submission's attached files clean as part of that approval.
     const { data: files, error: filesError } = await admin.from('add_on_files').select('id').eq('add_on_id', addOnId)
