@@ -55,7 +55,7 @@ The schema is in supabase/migrations/20261025000000_zexo_marketplace_initial_sch
 - Promote your owner account to admin using the SQL above.
 - Implement and connect a trusted malware-scanning/quarantine service. Storage does not scan uploads automatically; do not set scan_status to clean without a real scan.
 - Complete profile/favorites screens, detailed admin management pages, rate limits, and production deployment.
-- Run and fix the full Vite/TypeScript build and test it on desktop and Android. No APK/AAB has been built or published by this integration step.
+- The Vite/TypeScript production build passes in GitHub Actions. Browser and Android device testing are still required. No APK/AAB has been built or published by this integration step.
 
 ## Local development
     npm install
