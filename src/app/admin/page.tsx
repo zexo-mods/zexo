@@ -15,12 +15,14 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const { data: adminRole } = await supabase.from('user_roles').select('role').eq('user_id', userId).eq('role', 'admin').maybeSingle()
   if (!adminRole) return <main className="min-h-screen bg-[#080808] px-5 py-20 text-white"><div className="mx-auto max-w-xl rounded-2xl border border-zinc-800 bg-zinc-950 p-8"><h1 className="text-2xl font-bold">Admin access required</h1><p className="mt-3 text-sm leading-6 text-zinc-400">This account does not have the admin role. Add your authenticated user ID to public.user_roles from the Supabase SQL editor to bootstrap the first administrator.</p><Link href="/creator" className="mt-6 inline-block text-sm text-red-400">Return to creator portal</Link></div></main>
 
+  // Only after the authenticated user's admin role is verified do we use the
+  // server-only service client to read private moderation metadata.
+  const admin = createAdminClient()
   const [{ data: queue, error }, { data: reports }] = await Promise.all([
-    supabase.from('add_ons').select('id,title,description,created_at,creator_id,add_on_files(id,file_name,file_type,file_size,scan_status,storage_path)').eq('status', 'pending_review').order('created_at', { ascending: true }),
-    supabase.from('reports').select('id,add_on_id,reason,details,status,created_at').in('status', ['open', 'reviewing']).order('created_at', { ascending: true }),
+    admin.from('add_ons').select('id,title,description,created_at,creator_id,add_on_files(id,file_name,file_type,file_size,scan_status,storage_path)').eq('status', 'pending_review').order('created_at', { ascending: true }),
+    admin.from('reports').select('id,add_on_id,reason,details,status,created_at').in('status', ['open', 'reviewing']).order('created_at', { ascending: true }),
   ])
 
-  const admin = createAdminClient()
   const reviewQueue = await Promise.all((queue ?? []).map(async item => ({
     ...item,
     add_on_files: await Promise.all((item.add_on_files ?? []).map(async file => {
