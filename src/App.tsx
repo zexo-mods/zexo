@@ -35,7 +35,9 @@ function UploadPage(){
   if(uploadError)throw uploadError;
   const {error:metaError}=await client.from("mod_files").insert({mod_id:draft.id,storage_path:storagePath,file_name:safeName,file_type:ext,file_size:file.size,file_version:String(input.version),scan_status:"pending"});
   if(metaError){await client.storage.from("mod-files").remove([storagePath]);throw metaError;}
-  setMsg("Draft saved and file uploaded. Your file is pending security review; it will not be downloadable until approved.");
+  const {error:submitError}=await client.from("mods").update({status:"pending_review",updated_at:new Date().toISOString()}).eq("id",draft.id).eq("creator_id",user.id);
+  if(submitError)throw submitError;
+  setMsg("Submission sent to the ZEXO admin review queue. The file remains unavailable until it passes security scanning and is approved.");
   form.reset();
  }catch(x:any){setMsg(x.message||"Upload failed.");}finally{setBusy(false);}
  }
