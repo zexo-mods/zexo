@@ -44,3 +44,24 @@ export async function downloadAddOn(formData: FormData) {
   if (recordError) redirect('/explore?error=' + encodeURIComponent(recordError.message))
   redirect(signed.signedUrl)
 }
+
+export async function reportAddOn(formData: FormData) {
+  const addonId = String(formData.get('addon_id') ?? '')
+  const reason = String(formData.get('reason') ?? '').trim().slice(0, 120)
+  const details = String(formData.get('details') ?? '').trim().slice(0, 2000)
+  if (!addonId || !reason) redirect('/explore?error=Choose%20a%20report%20reason')
+
+  const supabase = await createClient()
+  const { data: claimsData } = await supabase.auth.getClaims()
+  const userId = claimsData?.claims?.sub
+  if (!userId) redirect('/login?error=Sign%20in%20to%20report%20content')
+
+  const { error } = await supabase.from('reports').insert({
+    reporter_id: userId,
+    add_on_id: addonId,
+    reason,
+    details,
+  })
+  if (error) redirect('/explore?error=' + encodeURIComponent(error.message))
+  redirect('/add-ons/' + String(formData.get('slug') ?? '') + '?reported=1')
+}
