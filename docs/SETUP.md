@@ -22,12 +22,14 @@ Set `SUPABASE_SECRET_KEY` as a secret in the Worker runtime settings and as a bu
 3. Authorize the Cloudflare GitHub App if prompted.
 4. Select `zexo-mods/zexo`, branch `main`.
 5. Use repository root as the root directory.
-6. Set Build command to `npm run build`.
+6. Set Build command to `npm run cf-build`.
 7. Set Deploy command to `npm run deploy`.
 8. Set Preview command to `npm run preview`.
 9. Add the two public Supabase variables to Build variables and secrets so Next.js can compile.
 10. Add all three variables in the Worker Settings → Variables and Secrets for runtime. Mark `SUPABASE_SECRET_KEY` as a secret.
 11. Deploy and wait for the first successful build. Cloudflare will provide a `workers.dev` URL.
+
+The regular `build` script runs `next build`; the `cf-build` script runs the OpenNext adapter. Use `npm run cf-build` in Cloudflare Workers Builds.
 
 Pushing commits to `main` will trigger deployments after the Git connection is active.
 
