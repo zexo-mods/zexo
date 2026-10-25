@@ -2,6 +2,7 @@
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function downloadAddOn(formData: FormData) {
   const addonId = String(formData.get('addon_id') ?? '')
@@ -15,7 +16,8 @@ export async function downloadAddOn(formData: FormData) {
     .maybeSingle()
   if (error || !file || !file.add_ons || (file.add_ons as {status:string}).status !== 'published') redirect('/explore?error=File%20is%20not%20available')
 
-  const { data: signed, error: signedError } = await supabase.storage.from('mod-files').createSignedUrl(file.storage_path, 60)
+  const admin = createAdminClient()
+  const { data: signed, error: signedError } = await admin.storage.from('mod-files').createSignedUrl(file.storage_path, 60)
   if (signedError || !signed?.signedUrl) redirect('/explore?error=Could%20not%20prepare%20download')
 
   const { data: claimsData } = await supabase.auth.getClaims()
