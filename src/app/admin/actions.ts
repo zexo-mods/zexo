@@ -33,9 +33,13 @@ export async function moderateAddOn(formData: FormData) {
   const { data: addon, error: addonError } = await admin.from('add_ons').select('id,creator_id,published_at').eq('id', addOnId).maybeSingle()
   if (addonError || !addon) redirect('/admin?error=Add-on%20not%20found')
 
-  if (nextStatus === 'published') {
-    const { count } = await admin.from('add_on_files').select('id', { count: 'exact', head: true }).eq('add_on_id', addOnId).eq('scan_status', 'clean')
-    if (!count) redirect('/admin?error=Cannot%20publish%20until%20a%20file%20is%20marked%20clean')
+  if (action === 'publish') {
+    // Publishing is the administrator's explicit approval after manual file review.
+    // Mark the submission's attached files clean as part of that approval.
+    const { data: files, error: filesError } = await admin.from('add_on_files').select('id').eq('add_on_id', addOnId)
+    if (filesError || !files?.length) redirect('/admin?error=Cannot%20publish%20because%20this%20submission%20has%20no%20uploaded%20file')
+    const { error: scanError } = await admin.from('add_on_files').update({ scan_status: 'clean' }).eq('add_on_id', addOnId)
+    if (scanError) redirect('/admin?error=' + encodeURIComponent(scanError.message))
   }
 
   const { error: updateError } = await admin.from('add_ons').update({
