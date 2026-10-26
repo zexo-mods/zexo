@@ -102,7 +102,7 @@ export async function saveCreatorScreenshotPaths(addOnId: string, pathsJson: str
   const prefix = userId + '/' + addOnId + '/screenshots/'
   if (paths.some(path => typeof path !== 'string' || !path.startsWith(prefix) || path.length > 500)) return { error: 'Screenshot path is not valid for this creation.' }
   const admin = createAdminClient()
-  const { data: addon } = await admin.from('add_ons').select('id,thumbnail_path').eq('id', addOnId).eq('creator_id', userId).maybeSingle()
+  const { data: addon } = await admin.from('add_ons').select('id,thumbnail_path,status').eq('id', addOnId).eq('creator_id', userId).maybeSingle()
   if (!addon) return { error: 'Creation not found or not owned by you.' }
   const { count } = await admin.from('add_on_images').select('id', { count: 'exact', head: true }).eq('add_on_id', addOnId)
   if ((count ?? 0) + paths.length > 20) return { error: 'A creation can have up to 20 screenshots.' }
@@ -111,8 +111,9 @@ export async function saveCreatorScreenshotPaths(addOnId: string, pathsJson: str
   const rows = paths.map((image_path, index) => ({ add_on_id: addOnId, image_path, display_order: start + index }))
   const { error } = await admin.from('add_on_images').insert(rows)
   if (error) return { error: error.message }
-  if (!addon.thumbnail_path && paths[0]) {
-    await admin.from('add_ons').update({ thumbnail_path: paths[0] }).eq('id', addOnId).eq('creator_id', userId)
-  }
+  const addonUpdate: { thumbnail_path?: string; status?: string; published_at?: null; updated_at: string } = { updated_at: new Date().toISOString() }
+  if (!addon.thumbnail_path && paths[0]) addonUpdate.thumbnail_path = paths[0]
+  if (addon.status === 'published') { addonUpdate.status = 'pending_review'; addonUpdate.published_at = null }
+  await admin.from('add_ons').update(addonUpdate).eq('id', addOnId).eq('creator_id', userId)
   return { success: true }
 }
