@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import {
-  Blocks, Compass, Download, Heart, Home, Search, Settings, Sparkles,
+  Blocks, Compass, Download, Heart, Home, Search, Settings,
   UserCircle, ChevronRight, Layers3, Palette, Shirt,
 } from 'lucide-react'
 
@@ -62,7 +62,7 @@ function PackCard({ item, tone, categoryName, imageUrl }: {
 export default async function HomePage() {
   let addons: Pack[] = []
   let user: { email?: string } | null = null
-  let categoryNames: Record<number, string> = { 1: 'ADD-ONS', 2: 'SHADERS', 3: 'MAPS', 4: 'TEXTURES', 5: 'SKINS', 6: 'WORLDS' }
+  const categoryNames: Record<number, string> = { 1: 'ADD-ONS', 2: 'SHADERS', 3: 'MAPS', 4: 'TEXTURES', 5: 'SKINS', 6: 'WORLDS' }
   let imageFor: (item: Pack) => string | undefined = () => undefined
   try {
     const supabase = await createClient()
