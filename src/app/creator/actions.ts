@@ -80,6 +80,7 @@ export async function deleteCreatorAddOn(formData: FormData) {
   if (filePaths.length) await admin.storage.from('mod-files').remove(filePaths)
   if (imagePaths.length) await admin.storage.from('mod-images').remove(imagePaths)
   await admin.from('favorites').delete().eq('add_on_id', id)
+  await admin.from('moderation_events').delete().eq('add_on_id', id)
   await admin.from('downloads').delete().eq('add_on_id', id)
   await admin.from('reports').delete().eq('add_on_id', id)
   await admin.from('add_on_files').delete().eq('add_on_id', id)
@@ -87,4 +88,31 @@ export async function deleteCreatorAddOn(formData: FormData) {
   const { error } = await admin.from('add_ons').delete().eq('id', id).eq('creator_id', userId)
   if (error) redirect('/creator?error=' + encodeURIComponent(error.message))
   redirect('/creator?deleted=1')
+}
+
+
+export async function saveCreatorScreenshotPaths(addOnId: string, pathsJson: string) {
+  const supabase = await createClient()
+  const { data: claims } = await supabase.auth.getClaims()
+  const userId = claims?.claims?.sub
+  if (!userId) return { error: 'Please sign in again.' }
+  let paths: string[] = []
+  try { paths = JSON.parse(pathsJson) as string[] } catch { return { error: 'Invalid screenshot list.' } }
+  if (!addOnId || !Array.isArray(paths) || paths.length < 1 || paths.length > 10) return { error: 'Choose between 1 and 10 screenshots.' }
+  const prefix = userId + '/' + addOnId + '/screenshots/'
+  if (paths.some(path => typeof path !== 'string' || !path.startsWith(prefix) || path.length > 500)) return { error: 'Screenshot path is not valid for this creation.' }
+  const admin = createAdminClient()
+  const { data: addon } = await admin.from('add_ons').select('id,thumbnail_path').eq('id', addOnId).eq('creator_id', userId).maybeSingle()
+  if (!addon) return { error: 'Creation not found or not owned by you.' }
+  const { count } = await admin.from('add_on_images').select('id', { count: 'exact', head: true }).eq('add_on_id', addOnId)
+  if ((count ?? 0) + paths.length > 20) return { error: 'A creation can have up to 20 screenshots.' }
+  const { data: current } = await admin.from('add_on_images').select('display_order').eq('add_on_id', addOnId).order('display_order', { ascending: false }).limit(1)
+  const start = (current?.[0]?.display_order ?? -1) + 1
+  const rows = paths.map((image_path, index) => ({ add_on_id: addOnId, image_path, display_order: start + index }))
+  const { error } = await admin.from('add_on_images').insert(rows)
+  if (error) return { error: error.message }
+  if (!addon.thumbnail_path && paths[0]) {
+    await admin.from('add_ons').update({ thumbnail_path: paths[0] }).eq('id', addOnId).eq('creator_id', userId)
+  }
+  return { success: true }
 }
