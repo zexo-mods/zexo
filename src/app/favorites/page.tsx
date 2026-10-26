@@ -7,7 +7,7 @@ import { removeFavorite } from './actions'
 type FavoriteRow = {
   add_on_id: string
   created_at: string
-  add_ons: null | {
+  addon: null | {
     id: string; title: string; slug: string; short_description: string;
     thumbnail_path: string | null; download_count: number; version: string;
   }
