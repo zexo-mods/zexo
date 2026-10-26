@@ -18,8 +18,8 @@ type Pack = {
 }
 
 const categoryMeta = [
-  { id: 1, label: 'ADD-ONS', href: '/explore?category=add-ons', icon: Blocks, color: 'text-amber-300 border-amber-500/50' },
-  { id: 3, label: 'WORLD', href: '/explore?category=maps', icon: Compass, color: 'text-orange-300 border-orange-500/50' },
+  { id: 1, label: 'ADD-ONS', href: '/explore?category=add-ons', icon: Blocks, color: 'text-red-300 border-red-500/50' },
+  { id: 3, label: 'WORLD', href: '/explore?category=maps', icon: Compass, color: 'text-sky-300 border-sky-500/50' },
   { id: 5, label: 'SKINS', href: '/explore?category=skins', icon: Shirt, color: 'text-violet-300 border-violet-500/50' },
   { id: 4, label: 'TEXTURES', href: '/explore?category=texture-packs', icon: Palette, color: 'text-emerald-300 border-emerald-500/50' },
 ]
@@ -45,7 +45,7 @@ function PackCard({ item, tone, categoryName, imageUrl }: {
             <span className="relative max-w-full px-3 text-center text-xl font-black uppercase leading-none tracking-tight text-white/90 drop-shadow-[0_3px_8px_rgba(0,0,0,.8)] sm:text-2xl">{item.title}</span>
           </>
         )}
-        <span className="absolute bottom-2 left-2 rounded-md border border-white/15 bg-black/75 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-amber-200">{categoryName}</span>
+        <span className="absolute bottom-2 left-2 rounded-md border border-white/15 bg-black/75 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-white">{categoryName}</span>
         {item.featured && <span className="absolute right-2 top-2 rounded-md bg-red-600 px-2 py-1 text-[8px] font-black tracking-wider text-white">FEATURED</span>}
       </div>
       <div className="p-3">
