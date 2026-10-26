@@ -88,3 +88,50 @@ export async function moderateReport(formData: FormData) {
   await admin.from('admin_audit_logs').insert({ admin_id: userId, action: 'report_' + status, target_type: 'report', target_id: reportId, metadata: {} })
   redirect('/admin?updated=1')
 }
+
+
+export async function updateAdminAddOn(formData: FormData) {
+  const { admin, userId } = await requireAdmin()
+  const id = String(formData.get('add_on_id') ?? '')
+  const title = String(formData.get('title') ?? '').trim().slice(0, 100)
+  const description = String(formData.get('description') ?? '').trim().slice(0, 5000)
+  const shortDescription = String(formData.get('short_description') ?? '').trim().slice(0, 240)
+  const status = String(formData.get('status') ?? '')
+  if (!id || title.length < 3 || description.length < 10 || !['draft','pending_review','published','rejected','suspended','changes_requested'].includes(status)) redirect('/admin?error=Invalid%20mod%20details')
+  const { data: existing } = await admin.from('add_ons').select('status').eq('id', id).maybeSingle()
+  if (!existing) redirect('/admin?error=Mod%20not%20found')
+  const { error } = await admin.from('add_ons').update({
+    title, description, short_description: shortDescription, status,
+    published_at: status === 'published' ? new Date().toISOString() : null,
+    updated_at: new Date().toISOString(),
+  }).eq('id', id)
+  if (error) redirect('/admin?error=' + encodeURIComponent(error.message))
+  await admin.from('admin_audit_logs').insert({ admin_id: userId, action: 'admin_edit_add_on', target_type: 'add_on', target_id: id, metadata: { title, status } })
+  redirect('/admin?updated=1#manage')
+}
+
+export async function deleteAdminAddOn(formData: FormData) {
+  const { admin, userId } = await requireAdmin()
+  const id = String(formData.get('add_on_id') ?? '')
+  if (!id) redirect('/admin?error=Invalid%20mod')
+  const { data: addon } = await admin.from('add_ons').select('id,title').eq('id', id).maybeSingle()
+  if (!addon) redirect('/admin?error=Mod%20not%20found')
+  const [{ data: files }, { data: images }] = await Promise.all([
+    admin.from('add_on_files').select('storage_path').eq('add_on_id', id),
+    admin.from('add_on_images').select('image_path').eq('add_on_id', id),
+  ])
+  const filePaths = (files ?? []).map(file => file.storage_path)
+  const imagePaths = (images ?? []).map(image => image.image_path)
+  if (filePaths.length) await admin.storage.from('mod-files').remove(filePaths)
+  if (imagePaths.length) await admin.storage.from('mod-images').remove(imagePaths)
+  await admin.from('favorites').delete().eq('add_on_id', id)
+  await admin.from('downloads').delete().eq('add_on_id', id)
+  await admin.from('reports').delete().eq('add_on_id', id)
+  await admin.from('moderation_events').delete().eq('add_on_id', id)
+  await admin.from('add_on_files').delete().eq('add_on_id', id)
+  await admin.from('add_on_images').delete().eq('add_on_id', id)
+  await admin.from('admin_audit_logs').insert({ admin_id: userId, action: 'admin_delete_add_on', target_type: 'add_on', target_id: id, metadata: { title: addon.title } })
+  const { error } = await admin.from('add_ons').delete().eq('id', id)
+  if (error) redirect('/admin?error=' + encodeURIComponent(error.message))
+  redirect('/admin?deleted=1#manage')
+}
