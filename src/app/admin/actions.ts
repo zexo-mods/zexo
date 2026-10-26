@@ -100,6 +100,10 @@ export async function updateAdminAddOn(formData: FormData) {
   if (!id || title.length < 3 || description.length < 10 || !['draft','pending_review','published','rejected','suspended','changes_requested'].includes(status)) redirect('/admin?error=Invalid%20mod%20details')
   const { data: existing } = await admin.from('add_ons').select('status').eq('id', id).maybeSingle()
   if (!existing) redirect('/admin?error=Mod%20not%20found')
+  if (status === 'published') {
+    const { data: cleanFiles } = await admin.from('add_on_files').select('id').eq('add_on_id', id).eq('scan_status', 'clean').limit(1)
+    if (!cleanFiles?.length) redirect('/admin?error=Cannot%20publish%20without%20a%20manually%20approved%20clean%20file')
+  }
   const { error } = await admin.from('add_ons').update({
     title, description, short_description: shortDescription, status,
     published_at: status === 'published' ? new Date().toISOString() : null,
