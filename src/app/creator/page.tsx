@@ -4,9 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/app/auth/actions'
 import { CreatorUploadForm } from './upload-form'
 import { updateCreatorAddOn, deleteCreatorAddOn } from './actions'
+import { AddScreenshots } from './add-screenshots'
 
 type Submission = {
-  id: string; title: string; short_description: string | null; description: string;
+  id: string; slug: string; title: string; short_description: string | null; description: string;
   version: string | null; status: string; created_at: string; moderation_feedback: string | null;
   thumbnail_path: string | null; add_on_images: { id: string; image_path: string; display_order: number }[];
 }
@@ -20,7 +21,7 @@ export default async function CreatorPage({ searchParams }: { searchParams: Prom
 
   const [{ data: categories }, { data: submissions }, { data: roles }] = await Promise.all([
     supabase.from('categories').select('id,name').eq('active', true).order('display_order'),
-    supabase.from('add_ons').select('id,title,short_description,description,version,status,created_at,moderation_feedback,thumbnail_path,add_on_images(id,image_path,display_order)').eq('creator_id', userId).order('created_at', { ascending: false }),
+    supabase.from('add_ons').select('id,slug,title,short_description,description,version,status,created_at,moderation_feedback,thumbnail_path,add_on_images(id,image_path,display_order)').eq('creator_id', userId).order('created_at', { ascending: false }),
     supabase.from('user_roles').select('role').eq('user_id', userId),
   ])
   const isAdmin = (roles ?? []).some(role => role.role === 'admin')
@@ -61,10 +62,10 @@ export default async function CreatorPage({ searchParams }: { searchParams: Prom
                   <div className="h-24 w-28 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-red-950 to-zinc-900 sm:h-28 sm:w-40">{cover ? <img src={cover} alt="" className="h-full w-full object-cover"/> : <div className="flex h-full items-center justify-center text-3xl font-black text-white/20">Z</div>}</div>
                   <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h3 className="truncate font-bold">{item.title}</h3><span className={'rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide '+(item.status==='published'?'bg-emerald-500/10 text-emerald-300':item.status==='pending_review'?'bg-amber-500/10 text-amber-300':'bg-zinc-800 text-zinc-300')}>{item.status.replaceAll('_',' ')}</span></div><p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-500">{item.short_description || item.description}</p><p className="mt-2 text-[11px] text-zinc-600">{images.length} screenshot(s) · Version {item.version || '1.0.0'} · {new Date(item.created_at).toLocaleDateString()}</p>{item.moderation_feedback && <p className="mt-2 text-xs text-amber-300">Review note: {item.moderation_feedback}</p>}</div>
                 </div>
-                {images.length > 0 && <div className="flex gap-2 overflow-x-auto border-t border-zinc-800 px-4 py-3">{images.map((image,index)=>{const src=imageUrl(image.image_path);return src?<a key={image.id} href={src} target="_blank" rel="noreferrer" className="h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-zinc-800"><img src={src} alt={'Screenshot '+(index+1)} className="h-full w-full object-cover"/></a>:null})}</div>}
+                {images.length > 0 && <div className="flex gap-2 overflow-x-auto border-t border-zinc-800 px-4 py-3">{images.map((image,index)=>{const src=imageUrl(image.image_path);return src?<a key={image.id} href={src} target="_blank" rel="noreferrer" className="h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-zinc-800"><img src={src} alt={'Screenshot '+(index+1)} className="h-full w-full object-cover"/></a>:null})}</div>}<div className="px-4 pb-3"><AddScreenshots addOnId={item.id} userId={userId}/></div>
                 <div className="flex flex-wrap items-center gap-3 border-t border-zinc-800 px-4 py-3">
                   <details className="min-w-0 flex-1"><summary className="cursor-pointer text-xs font-bold text-red-300 hover:text-red-200">Edit details</summary><form action={updateCreatorAddOn} className="mt-4 space-y-3"><input type="hidden" name="add_on_id" value={item.id}/><label className="block text-xs text-zinc-400">Title<input name="title" required minLength={3} maxLength={100} defaultValue={item.title} className="mt-1 w-full rounded-lg border border-zinc-700 bg-black px-3 py-2 text-sm text-white"/></label><label className="block text-xs text-zinc-400">Short description<input name="short_description" maxLength={240} defaultValue={item.short_description ?? ''} className="mt-1 w-full rounded-lg border border-zinc-700 bg-black px-3 py-2 text-sm text-white"/></label><label className="block text-xs text-zinc-400">Description<textarea name="description" required minLength={10} maxLength={5000} rows={4} defaultValue={item.description} className="mt-1 w-full rounded-lg border border-zinc-700 bg-black px-3 py-2 text-sm text-white"/></label><label className="block text-xs text-zinc-400">Version<input name="version" defaultValue={item.version ?? '1.0.0'} className="mt-1 w-full rounded-lg border border-zinc-700 bg-black px-3 py-2 text-sm text-white"/></label><button className="rounded-lg bg-red-600 px-4 py-2 text-xs font-bold">Save changes</button>{item.status==='published' && <p className="text-[11px] text-amber-300">Editing a published mod sends it back for review.</p>}</form></details>
-                  {item.status==='published' && <Link href={'/add-ons/'+item.id} className="text-xs text-zinc-400 hover:text-white">Open</Link>}
+                  {item.status==='published' && <Link href={'/add-ons/'+item.slug} className="text-xs text-zinc-400 hover:text-white">Open</Link>}
                   <form action={deleteCreatorAddOn}><input type="hidden" name="add_on_id" value={item.id}/><button className="rounded-lg border border-red-500/30 px-3 py-2 text-xs font-semibold text-red-300 hover:bg-red-500/10">Delete mod</button></form>
                 </div>
               </article>
