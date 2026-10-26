@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Heart, Download, ArrowLeft } from 'lucide-react'
+import { Heart, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { removeFavorite } from './actions'
 
@@ -20,8 +20,8 @@ export default async function FavoritesPage({ searchParams }: { searchParams: Pr
   const userId = claims?.claims?.sub
   if (!userId) redirect('/login?next=/favorites')
   const { data, error } = await supabase.from('favorites')
-    .select('add_on_id,created_at,add_ons!inner(id,title,slug,short_description,thumbnail_path,download_count,version)')
-    .eq('user_id', userId).order('created_at', { ascending: false })
+    .select('add_on_id,created_at,addon:add_ons!inner(id,title,slug,short_description,thumbnail_path,download_count,version)')
+    .eq('user_id', userId).eq('addon.status', 'published').order('created_at', { ascending: false })
   const rows = (data ?? []) as unknown as FavoriteRow[]
 
   return <main className="min-h-screen bg-[#080809] px-4 py-7 text-white sm:px-6">
@@ -37,8 +37,8 @@ export default async function FavoritesPage({ searchParams }: { searchParams: Pr
       </div>
       {params.removed && <p className="mt-5 rounded-xl border border-emerald-900 bg-emerald-950/30 p-3 text-sm text-emerald-300">Removed from your favourites.</p>}
       {(params.error || error) && <p className="mt-5 rounded-xl border border-red-900 bg-red-950/30 p-3 text-sm text-red-300">{params.error || error?.message}</p>}
-      {rows.length ? <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{rows.filter(row=>row.add_ons).map(row=>{
-        const item=row.add_ons!
+      {rows.length ? <div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{rows.filter(row=>row.addon).map(row=>{
+        const item=row.addon!
         const image=item.thumbnail_path ? supabase.storage.from('mod-images').getPublicUrl(item.thumbnail_path).data.publicUrl : null
         return <article key={row.add_on_id} className="overflow-hidden rounded-2xl border border-white/10 bg-[#111113]">
           <Link href={'/add-ons/'+item.slug} className="block">
