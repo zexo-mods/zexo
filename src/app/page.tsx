@@ -2,8 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import {
   Blocks, Compass, Download, Heart, Home, Search, Settings, Sparkles,
-  UserCircle, ChevronRight, Flame, Layers3, Map, Palette, Shirt,
-  Menu, ArrowUpRight, Star, Zap,
+  UserCircle, ChevronRight, Layers3, Palette, Shirt,
 } from 'lucide-react'
 
 type Pack = {
@@ -64,8 +63,12 @@ export default async function HomePage() {
   let addons: Pack[] = []
   let user: { email?: string } | null = null
   let categoryNames: Record<number, string> = { 1: 'ADD-ONS', 2: 'SHADERS', 3: 'MAPS', 4: 'TEXTURES', 5: 'SKINS', 6: 'WORLDS' }
+  let imageFor: (item: Pack) => string | undefined = () => undefined
   try {
     const supabase = await createClient()
+    imageFor = (item: Pack) => item.thumbnail_path
+      ? supabase.storage.from('mod-images').getPublicUrl(item.thumbnail_path).data.publicUrl
+      : undefined
     const [{ data: rows }, { data: categories }, { data: { user: currentUser } }] = await Promise.all([
       supabase.from('add_ons').select('id,title,slug,short_description,version,download_count,category_id,thumbnail_path,featured').eq('status', 'published').order('featured', { ascending: false }).order('published_at', { ascending: false }).limit(60),
       supabase.from('categories').select('id,name').eq('active', true),
@@ -76,10 +79,6 @@ export default async function HomePage() {
     user = currentUser ? { email: currentUser.email } : null
   } catch { /* Keep the storefront visible if the database is temporarily unavailable. */ }
 
-  const supabase = await createClient()
-  const imageFor = (item: Pack) => item.thumbnail_path
-    ? supabase.storage.from('mod-images').getPublicUrl(item.thumbnail_path).data.publicUrl
-    : undefined
   const featured = addons.find(item => item.featured) ?? addons[0]
   const groups = sections.map(section => ({
     ...section,
