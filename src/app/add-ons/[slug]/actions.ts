@@ -4,6 +4,19 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
+export async function toggleFavorite(formData: FormData) {
+  const addonId = String(formData.get('addon_id') ?? '')
+  const slug = String(formData.get('slug') ?? '')
+  const supabase = await createClient()
+  const { data } = await supabase.auth.getClaims()
+  const userId = data?.claims?.sub
+  if (!userId) redirect('/login?next=' + encodeURIComponent('/add-ons/' + slug))
+  const { data: existing } = await supabase.from('favorites').select('add_on_id').eq('user_id', userId).eq('add_on_id', addonId).maybeSingle()
+  if (existing) await supabase.from('favorites').delete().eq('user_id', userId).eq('add_on_id', addonId)
+  else await supabase.from('favorites').insert({ user_id: userId, add_on_id: addonId })
+  redirect('/add-ons/' + slug)
+}
+
 export async function downloadAddOn(formData: FormData) {
   const addonId = String(formData.get('addon_id') ?? '')
   const fileId = String(formData.get('file_id') ?? '')
