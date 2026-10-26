@@ -14,7 +14,7 @@ export function CreatorUploadForm({ categories }: { categories: Category[] }) {
 
   function chooseScreenshots(files: FileList | null) {
     previewUrls.forEach(URL.revokeObjectURL)
-    setPreviewUrls(Array.from(files ?? []).slice(0, 5).map(file => URL.createObjectURL(file)))
+    setPreviewUrls(Array.from(files ?? []).slice(0, 10).map(file => URL.createObjectURL(file)))
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -31,7 +31,7 @@ export function CreatorUploadForm({ categories }: { categories: Category[] }) {
       if (pack.size > 100 * 1024 * 1024) throw new Error('Pack file must be 100 MB or smaller.')
       const ext = pack.name.split('.').pop()?.toLowerCase() ?? ''
       if (!['mcpack','mcaddon','mcworld','mctemplate','zip'].includes(ext)) throw new Error('Allowed pack files: mcpack, mcaddon, mcworld, mctemplate and zip.')
-      if (screenshots.length > 5) throw new Error('Upload up to 5 screenshots.')
+      if (screenshots.length > 10) throw new Error('Upload up to 10 screenshots.')
       for (const shot of screenshots) {
         if (!['image/png','image/jpeg','image/webp'].includes(shot.type)) throw new Error('Screenshots must be PNG, JPG or WEBP images.')
         if (shot.size > 8 * 1024 * 1024) throw new Error('Each screenshot must be 8 MB or smaller.')
@@ -91,7 +91,7 @@ export function CreatorUploadForm({ categories }: { categories: Category[] }) {
     <div className="grid gap-4 sm:grid-cols-2"><label className="block text-sm text-zinc-300">Pack version<input name="version" defaultValue="1.0.0" className="mt-2 w-full rounded-xl border border-zinc-800 bg-black px-4 py-3"/></label><label className="block text-sm text-zinc-300">Minecraft Bedrock version<input name="minecraft_version" placeholder="e.g. 1.21.90" className="mt-2 w-full rounded-xl border border-zinc-800 bg-black px-4 py-3"/></label></div>
     <label className="block text-sm text-zinc-300">Minecraft pack file <span className="text-zinc-600">(max 100 MB)</span><input name="file" type="file" required accept=".mcpack,.mcaddon,.mcworld,.mctemplate,.zip" className="mt-2 block w-full rounded-xl border border-zinc-800 bg-black px-4 py-3 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-red-600 file:px-3 file:py-2 file:font-bold file:text-white"/></label>
     <div className="rounded-xl border border-dashed border-zinc-700 bg-black/50 p-4">
-      <label className="block text-sm font-semibold text-zinc-200">Screenshots / gallery images <span className="font-normal text-zinc-500">up to 5 · PNG, JPG, WEBP · 8 MB each</span><input name="screenshots" type="file" multiple accept="image/png,image/jpeg,image/webp" onChange={e=>chooseScreenshots(e.target.files)} className="mt-3 block w-full text-xs text-zinc-400 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-800 file:px-3 file:py-2 file:text-white"/></label>
+      <label className="block text-sm font-semibold text-zinc-200">Screenshots / gallery images <span className="font-normal text-zinc-500">up to 10 · PNG, JPG, WEBP · 8 MB each</span><input name="screenshots" type="file" multiple accept="image/png,image/jpeg,image/webp" onChange={e=>chooseScreenshots(e.target.files)} className="mt-3 block w-full text-xs text-zinc-400 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-800 file:px-3 file:py-2 file:text-white"/></label>
       {previewUrls.length > 0 && <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">{previewUrls.map((url,i)=><div key={url} className="relative overflow-hidden rounded-lg border border-zinc-800"><img src={url} alt={'Screenshot preview '+(i+1)} className="aspect-square w-full object-cover"/>{i===0 && <span className="absolute bottom-1 left-1 rounded bg-red-600 px-2 py-1 text-[9px] font-bold">COVER</span>}</div>)}</div>}
     </div>
     <p className="text-xs leading-5 text-zinc-500">Only upload files and screenshots you own or are authorized to distribute. Your submission stays private until an administrator reviews it.</p>
