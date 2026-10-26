@@ -12,8 +12,10 @@ export async function toggleFavorite(formData: FormData) {
   const userId = data?.claims?.sub
   if (!userId) redirect('/login?next=' + encodeURIComponent('/add-ons/' + slug))
   const { data: existing } = await supabase.from('favorites').select('add_on_id').eq('user_id', userId).eq('add_on_id', addonId).maybeSingle()
-  if (existing) await supabase.from('favorites').delete().eq('user_id', userId).eq('add_on_id', addonId)
-  else await supabase.from('favorites').insert({ user_id: userId, add_on_id: addonId })
+  const result = existing
+    ? await supabase.from('favorites').delete().eq('user_id', userId).eq('add_on_id', addonId)
+    : await supabase.from('favorites').insert({ user_id: userId, add_on_id: addonId })
+  if (result.error) redirect('/add-ons/' + slug + '?favorite_error=' + encodeURIComponent(result.error.message))
   redirect('/add-ons/' + slug)
 }
 
