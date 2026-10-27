@@ -69,7 +69,7 @@ export async function updateCreatorAddOn(formData: FormData) {
     moderation_feedback: null, updated_at: new Date().toISOString(),
   }).eq('id', id).eq('creator_id', userId)
   if (error) { if (logoPath) await admin.storage.from('mod-images').remove([logoPath]); redirect('/creator?error=' + encodeURIComponent(error.message)) }
-  if (logoPath && previousLogo?.thumbnail_path) await admin.storage.from('mod-images').remove([previousLogo.thumbnail_path])
+  if (logoPath && previousLogo?.thumbnail_path?.includes('/logo/')) await admin.storage.from('mod-images').remove([previousLogo.thumbnail_path])
   redirect('/creator?updated=1')
 }
 
