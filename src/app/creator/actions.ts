@@ -47,17 +47,29 @@ export async function updateCreatorAddOn(formData: FormData) {
   const shortDescription = String(formData.get('short_description') ?? '').trim().slice(0, 240)
   const description = String(formData.get('description') ?? '').trim().slice(0, 5000)
   const version = String(formData.get('version') ?? '1.0.0').trim().slice(0, 40)
+  const logo = formData.get('logo')
   if (!id || title.length < 3 || description.length < 10) redirect('/creator?error=Please%20check%20the%20title%20and%20description')
   const admin = createAdminClient()
   const { data: owned } = await admin.from('add_ons').select('id,status').eq('id', id).eq('creator_id', userId).maybeSingle()
   if (!owned) redirect('/creator?error=Creation%20not%20found%20or%20not%20owned%20by%20you')
+  let logoPath: string | undefined
+  if (logo instanceof File && logo.size > 0) {
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(logo.type) || logo.size > 5 * 1024 * 1024) redirect('/creator?error=Logo%20must%20be%20PNG%2C%20JPG%20or%20WEBP%20and%20under%205%20MB')
+    const ext = logo.type === 'image/jpeg' ? 'jpg' : logo.type === 'image/png' ? 'png' : 'webp'
+    logoPath = userId + '/' + id + '/logo/' + crypto.randomUUID() + '.' + ext
+    const { error: uploadError } = await admin.storage.from('mod-images').upload(logoPath, logo, { contentType: logo.type, upsert: false })
+    if (uploadError) redirect('/creator?error=' + encodeURIComponent('Logo upload failed: ' + uploadError.message))
+  }
+  const { data: previousLogo } = logoPath ? await admin.from('add_ons').select('thumbnail_path').eq('id', id).maybeSingle() : { data: null }
   const { error } = await admin.from('add_ons').update({
     title, short_description: shortDescription, description, version,
+    ...(logoPath ? { thumbnail_path: logoPath } : {}),
     status: owned.status === 'published' ? 'pending_review' : owned.status,
     published_at: owned.status === 'published' ? null : undefined,
     moderation_feedback: null, updated_at: new Date().toISOString(),
   }).eq('id', id).eq('creator_id', userId)
-  if (error) redirect('/creator?error=' + encodeURIComponent(error.message))
+  if (error) { if (logoPath) await admin.storage.from('mod-images').remove([logoPath]); redirect('/creator?error=' + encodeURIComponent(error.message)) }
+  if (logoPath && previousLogo?.thumbnail_path) await admin.storage.from('mod-images').remove([previousLogo.thumbnail_path])
   redirect('/creator?updated=1')
 }
 
