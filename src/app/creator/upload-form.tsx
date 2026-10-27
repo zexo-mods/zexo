@@ -24,6 +24,7 @@ export function CreatorUploadForm({ categories }: { categories: Category[] }) {
     const form = event.currentTarget
     const data = new FormData(form)
     const pack = data.get('file')
+    const logo = data.get('logo')
     const screenshots = data.getAll('screenshots').filter((value): value is File => value instanceof File && value.size > 0)
     const uploadedPaths: string[] = []
     try {
@@ -31,6 +32,7 @@ export function CreatorUploadForm({ categories }: { categories: Category[] }) {
       if (pack.size > 100 * 1024 * 1024) throw new Error('Pack file must be 100 MB or smaller.')
       const ext = pack.name.split('.').pop()?.toLowerCase() ?? ''
       if (!['mcpack','mcaddon','mcworld','mctemplate','zip'].includes(ext)) throw new Error('Allowed pack files: mcpack, mcaddon, mcworld, mctemplate and zip.')
+      if (logo instanceof File && logo.size > 0) { if (!['image/png','image/jpeg','image/webp'].includes(logo.type)) throw new Error('Mod logo must be PNG, JPG or WEBP.'); if (logo.size > 5 * 1024 * 1024) throw new Error('Mod logo must be 5 MB or smaller.') }
       if (screenshots.length > 10) throw new Error('Upload up to 10 screenshots.')
       for (const shot of screenshots) {
         if (!['image/png','image/jpeg','image/webp'].includes(shot.type)) throw new Error('Screenshots must be PNG, JPG or WEBP images.')
@@ -54,6 +56,14 @@ export function CreatorUploadForm({ categories }: { categories: Category[] }) {
       const { error: fileRowError } = await supabase.from('add_on_files').insert({ add_on_id: id, storage_path: packPath, file_name: pack.name, file_type: ext, file_size: pack.size, file_version: String(data.get('version') || '1.0.0') })
       if (fileRowError) throw new Error('Could not save pack details: ' + fileRowError.message)
 
+      let logoPath: string | null = null
+      if (logo instanceof File && logo.size > 0) {
+        const logoExt = logo.type === 'image/jpeg' ? 'jpg' : logo.type === 'image/png' ? 'png' : 'webp'
+        logoPath = auth.user.id + '/' + id + '/logo/' + crypto.randomUUID() + '.' + logoExt
+        const { error } = await supabase.storage.from('mod-images').upload(logoPath, logo, { contentType: logo.type, upsert: false })
+        if (error) throw new Error('Logo upload failed: ' + error.message)
+        uploadedPaths.push(logoPath)
+      }
       const imageRows: { add_on_id: string; image_path: string; display_order: number }[] = []
       for (let index = 0; index < screenshots.length; index++) {
         const shot = screenshots[index]
@@ -64,10 +74,10 @@ export function CreatorUploadForm({ categories }: { categories: Category[] }) {
         uploadedPaths.push(path)
         imageRows.push({ add_on_id: id, image_path: path, display_order: index })
       }
-      if (imageRows.length) {
+      if (imageRows.length || logoPath) {
         const { error } = await supabase.from('add_on_images').insert(imageRows)
         if (error) throw new Error('Could not save screenshots: ' + error.message)
-        const { error: thumbError } = await supabase.from('add_ons').update({ thumbnail_path: imageRows[0].image_path }).eq('id', id)
+        const { error: thumbError } = await supabase.from('add_ons').update({ thumbnail_path: logoPath || imageRows[0]?.image_path }).eq('id', id)
         if (thumbError) throw new Error('Screenshots saved, but cover image could not be set: ' + thumbError.message)
       }
       const { error: submitError } = await supabase.from('add_ons').update({ status: 'pending_review' }).eq('id', id)
@@ -90,6 +100,7 @@ export function CreatorUploadForm({ categories }: { categories: Category[] }) {
     <label className="block text-sm text-zinc-300">Full description<textarea name="description" required minLength={10} maxLength={5000} rows={5} className="mt-2 w-full rounded-xl border border-zinc-800 bg-black px-4 py-3 outline-none focus:border-red-500"/></label>
     <div className="grid gap-4 sm:grid-cols-2"><label className="block text-sm text-zinc-300">Pack version<input name="version" defaultValue="1.0.0" className="mt-2 w-full rounded-xl border border-zinc-800 bg-black px-4 py-3"/></label><label className="block text-sm text-zinc-300">Minecraft Bedrock version<input name="minecraft_version" placeholder="e.g. 1.21.90" className="mt-2 w-full rounded-xl border border-zinc-800 bg-black px-4 py-3"/></label></div>
     <label className="block text-sm text-zinc-300">Minecraft pack file <span className="text-zinc-600">(max 100 MB)</span><input name="file" type="file" required accept=".mcpack,.mcaddon,.mcworld,.mctemplate,.zip" className="mt-2 block w-full rounded-xl border border-zinc-800 bg-black px-4 py-3 text-sm file:mr-4 file:rounded-lg file:border-0 file:bg-red-600 file:px-3 file:py-2 file:font-bold file:text-white"/></label>
+    <label className="block text-sm text-zinc-300">Mod logo / cover image <span className="text-zinc-500">(optional · PNG, JPG, WEBP · max 5 MB)</span><input name="logo" type="file" accept="image/png,image/jpeg,image/webp" className="mt-2 block w-full rounded-xl border border-zinc-800 bg-black px-4 py-3 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-800 file:px-3 file:py-2 file:text-white"/><span className="mt-1 block text-xs text-zinc-600">Square 1:1 image recommended. This appears as your mod's marketplace cover.</span></label>
     <div className="rounded-xl border border-dashed border-zinc-700 bg-black/50 p-4">
       <label className="block text-sm font-semibold text-zinc-200">Screenshots / gallery images <span className="font-normal text-zinc-500">up to 10 · PNG, JPG, WEBP · 8 MB each</span><input name="screenshots" type="file" multiple accept="image/png,image/jpeg,image/webp" onChange={e=>chooseScreenshots(e.target.files)} className="mt-3 block w-full text-xs text-zinc-400 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-800 file:px-3 file:py-2 file:text-white"/></label>
       {previewUrls.length > 0 && <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">{previewUrls.map((url,i)=><div key={url} className="relative overflow-hidden rounded-lg border border-zinc-800"><img src={url} alt={'Screenshot preview '+(i+1)} className="aspect-square w-full object-cover"/>{i===0 && <span className="absolute bottom-1 left-1 rounded bg-red-600 px-2 py-1 text-[9px] font-bold">COVER</span>}</div>)}</div>}
