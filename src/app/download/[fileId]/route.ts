@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getZexoBucket } from '@/lib/r2'
 
 export async function GET(
   _request: Request,
