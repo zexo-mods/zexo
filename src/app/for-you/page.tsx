@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Compass, Download, Flame, Sparkles, Clock3, Search } from 'lucide-react'
+import MobileBottomNav from '@/components/mobile-bottom-nav'
 
 type AddOn = {
   id: string
@@ -84,6 +85,7 @@ export default async function ForYouPage({ searchParams }: { searchParams: Promi
           <div className="flex flex-wrap gap-2">{(categories ?? []).map(c => <Link key={c.id} href={'/explore?category=' + c.slug} className="rounded-full border border-zinc-800 bg-[#111113] px-4 py-2 text-xs font-bold text-zinc-300 transition hover:border-red-500/60 hover:text-white">{c.name}</Link>)}</div>
         </section>
       </div>
+      <MobileBottomNav active="explore" />
     </main>
   )
 }
