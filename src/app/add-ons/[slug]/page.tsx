@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { reportAddOn, toggleFavorite } from './actions'
 import { Download, Heart, Share2, ShieldCheck, Images, ChevronRight, CalendarDays, UserRound, FileArchive } from 'lucide-react'
 import ModHeroGallery from '@/components/mod-hero-gallery'
+import { mediaPath } from '@/lib/r2'
 
 type Pack = {
   id: string
@@ -43,7 +44,7 @@ export default async function AddOnDetailPage({ params, searchParams }: {
     supabase.from('add_ons').select('id,title,slug,thumbnail_path,download_count,categories(name)').eq('status', 'published').neq('id', addon.id).order('download_count', { ascending: false }).limit(8),
     supabase.from('creator_profiles').select('display_name,verification_status').eq('user_id', addon.creator_id).maybeSingle(),
   ])
-  const imageUrl = (path: string | null) => path ? supabase.storage.from('mod-images').getPublicUrl(path).data.publicUrl : null
+  const imageUrl = mediaPath
   const galleryImages = (gallery ?? []).map((image: { id: string; image_path: string }) => ({ id: image.id, url: imageUrl(image.image_path) })).filter((image): image is { id: string; url: string } => Boolean(image.url))
   const categoryRelation = addon.categories as unknown as { name?: string } | { name?: string }[] | null
   const categoryName = (Array.isArray(categoryRelation) ? categoryRelation[0]?.name : categoryRelation?.name) ?? 'Add-on'
