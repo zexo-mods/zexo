@@ -7,7 +7,7 @@ export const runtime = 'nodejs'
 export async function GET(_request: Request, { params }: { params: Promise<{ key: string[] }> }) {
   const { key: segments } = await params
   const key = segments.join('/')
-  if (!key.startsWith('images/') || key.includes('..') || key.length > 700) return new Response('Not found', { status: 404 })
+  if (key.includes('..') || key.startsWith('/') || key.length > 700) return new Response('Not found', { status: 404 })
 
   const admin = createAdminClient()
   const [{ data: addonByThumb }, { data: imageRow }] = await Promise.all([
@@ -28,11 +28,17 @@ export async function GET(_request: Request, { params }: { params: Promise<{ key
     }
   }
 
-  const object = await getZexoBucket().get(key)
-  if (!object) return new Response('Not found', { status: 404 })
-  const headers = new Headers({ 'Cache-Control': published ? 'public, max-age=3600' : 'private, no-store' })
-  object.writeHttpMetadata(headers)
-  headers.set('ETag', object.httpEtag)
-  headers.set('X-Content-Type-Options', 'nosniff')
-  return new Response(object.body, { headers })
+  const headers = new Headers({ 'Cache-Control': published ? 'public, max-age=3600' : 'private, no-store', 'X-Content-Type-Options': 'nosniff' })
+  if (key.startsWith('images/')) {
+    const object = await getZexoBucket().get(key)
+    if (!object) return new Response('Not found', { status: 404 })
+    object.writeHttpMetadata(headers)
+    headers.set('ETag', object.httpEtag)
+    return new Response(object.body, { headers })
+  }
+  // Backward compatibility while older images remain in Supabase Storage.
+  const { data: legacyImage, error } = await admin.storage.from('mod-images').download(key)
+  if (error || !legacyImage) return new Response('Not found', { status: 404 })
+  headers.set('Content-Type', legacyImage.type || 'application/octet-stream')
+  return new Response(legacyImage.stream(), { headers })
 }
