@@ -97,7 +97,7 @@ export default async function AddOnDetailPage({ params, searchParams }: {
             </div>
             <div className="flex items-center gap-2">
               <form action={toggleFavorite}><input type="hidden" name="addon_id" value={addon.id}/><input type="hidden" name="slug" value={slug}/><button aria-label={favorite ? 'Remove from favorites' : 'Save to favorites'} className={'flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-800 transition ' + (favorite ? 'bg-red-600 text-white' : 'bg-zinc-900 text-red-400 hover:border-red-500')}><Heart size={19} fill={favorite ? 'currentColor' : 'none'}/></button></form>
-              <button type="button" aria-label="Share this add-on" className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-300" onClick={undefined}><Share2 size={18}/></button>
+              <a href={"https://twitter.com/intent/tweet?url=" + encodeURIComponent("https://zexo.zexomods.workers.dev/add-ons/" + slug) + "&text=" + encodeURIComponent(addon.title)} target="_blank" rel="noopener noreferrer" aria-label="Share this add-on" className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900 text-zinc-300"><Share2 size={18}/></a>
             </div>
           </div>
           {query.favorite_error && <p className="mt-3 rounded-lg border border-red-900 bg-red-950/30 p-3 text-xs text-red-300">Could not update your favorites. Please try again.</p>}
