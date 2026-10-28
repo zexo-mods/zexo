@@ -34,13 +34,12 @@ export async function moderateAddOn(formData: FormData) {
   if (addonError || !addon) redirect('/admin?error=Add-on%20not%20found')
 
   if (action === 'publish') {
-    // ZEXO publish-fix deployment marker: approve attached files before changing add-on status.
-    // Publishing is the administrator's explicit approval after manual file review.
-    // Mark the submission's attached files clean as part of that approval.
-    const { data: files, error: filesError } = await admin.from('add_on_files').select('id').eq('add_on_id', addOnId)
-    if (filesError || !files?.length) redirect('/admin?error=Cannot%20publish%20because%20this%20submission%20has%20no%20uploaded%20file')
-    const { error: scanError } = await admin.from('add_on_files').update({ scan_status: 'clean' }).eq('add_on_id', addOnId)
-    if (scanError) redirect('/admin?error=' + encodeURIComponent(scanError.message))
+    // Publishing is allowed only after an administrator has explicitly reviewed
+    // and marked at least one attached file as clean.
+    const { data: cleanFiles, error: filesError } = await admin.from('add_on_files')
+      .select('id').eq('add_on_id', addOnId).eq('scan_status', 'clean').limit(1)
+    if (filesError) redirect('/admin?error=' + encodeURIComponent(filesError.message))
+    if (!cleanFiles?.length) redirect('/admin?error=Cannot%20publish%20until%20an%20admin%20manually%20approves%20at%20least%20one%20clean%20file')
   }
 
   const { error: updateError } = await admin.from('add_ons').update({
