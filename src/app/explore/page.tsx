@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'\nimport MobileBottomNav from '@/components/mobile-bottom-nav'
+import { createClient } from '@/lib/supabase/server'
+import MobileBottomNav from '@/components/mobile-bottom-nav'
 
 export default async function ExplorePage({ searchParams }: { searchParams: Promise<{ q?: string; category?: string }> }) {
   const params = await searchParams
