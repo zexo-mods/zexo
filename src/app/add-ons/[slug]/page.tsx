@@ -71,7 +71,7 @@ export default async function AddOnDetailPage({ params, searchParams }: {
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-black/10"/>
           <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
             <div><p className="text-[10px] font-black tracking-[.2em] text-red-300">ZEXO • MINECRAFT BEDROCK</p><h1 className="mt-1 text-2xl font-black sm:text-4xl">{addon.title}</h1></div>
-            <span className="rounded-lg border border-white/20 bg-black/50 px-3 py-2 text-xs font-bold backdrop-blur">{addon.categories?.name ?? 'Add-on'}</span>
+            <span className="rounded-lg border border-white/20 bg-black/50 px-3 py-2 text-xs font-bold backdrop-blur">{(Array.isArray(addon.categories) ? addon.categories[0]?.name : addon.categories?.name) ?? 'Add-on'}</span>
           </div>
         </div>
         <div className="px-4 sm:px-6">
