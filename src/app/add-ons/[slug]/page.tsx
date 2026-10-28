@@ -45,7 +45,8 @@ export default async function AddOnDetailPage({ params, searchParams }: {
   ])
   const imageUrl = (path: string | null) => path ? supabase.storage.from('mod-images').getPublicUrl(path).data.publicUrl : null
   const galleryImages = (gallery ?? []).map((image: { id: string; image_path: string }) => ({ id: image.id, url: imageUrl(image.image_path) })).filter((image): image is { id: string; url: string } => Boolean(image.url))
-  const categoryName = (Array.isArray(addon.categories) ? addon.categories[0]?.name : addon.categories?.name) ?? 'Add-on'
+  const categoryRelation = addon.categories as unknown as { name?: string } | { name?: string }[] | null
+  const categoryName = (Array.isArray(categoryRelation) ? categoryRelation[0]?.name : categoryRelation?.name) ?? 'Add-on'
   const publishedDate = addon.published_at ?? addon.created_at
   const ModRail = ({ title, items, accent }: { title: string; items: Pack[] | null; accent: string }) => (
     <section className="mt-9">
