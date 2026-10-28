@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { Heart, ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { removeFavorite } from './actions'
+import MobileBottomNav from '@/components/mobile-bottom-nav'
 
 type FavoriteRow = {
   add_on_id: string
@@ -24,7 +25,7 @@ export default async function FavoritesPage({ searchParams }: { searchParams: Pr
     .eq('user_id', userId).eq('addon.status', 'published').order('created_at', { ascending: false })
   const rows = (data ?? []) as unknown as FavoriteRow[]
 
-  return <main className="min-h-screen bg-[#080809] px-4 py-7 text-white sm:px-6">
+  return <main className="min-h-screen bg-[#080809] px-4 py-7 pb-28 text-white sm:px-6">
     <div className="mx-auto max-w-6xl">
       <header className="flex items-center justify-between border-b border-zinc-800 pb-5">
         <Link href="/" className="text-xl font-black italic tracking-widest">ZEXO<span className="text-red-500">.</span></Link>
@@ -49,5 +50,6 @@ export default async function FavoritesPage({ searchParams }: { searchParams: Pr
         </article>
       })}</div> : <div className="mt-8 rounded-3xl border border-dashed border-zinc-800 bg-zinc-950/50 px-6 py-16 text-center"><Heart size={34} className="mx-auto text-zinc-700"/><h2 className="mt-4 text-lg font-bold">Nothing saved yet</h2><p className="mt-2 text-sm text-zinc-500">Browse the marketplace and save packs you want to revisit.</p><Link href="/explore" className="mt-5 inline-flex rounded-xl bg-red-600 px-5 py-3 text-sm font-bold">Explore marketplace</Link></div>}
     </div>
+    <MobileBottomNav active="favorites" />
   </main>
 }
