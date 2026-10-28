@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { Compass, Download, Flame, Sparkles, Clock3, Search } from 'lucide-react'
 import MobileBottomNav from '@/components/mobile-bottom-nav'
+import { mediaPath } from '@/lib/r2'
 
 type AddOn = {
   id: string
@@ -45,7 +46,7 @@ export default async function ForYouPage({ searchParams }: { searchParams: Promi
     const rel = item.categories as { name?: string } | { name?: string }[] | null | undefined
     return (Array.isArray(rel) ? rel[0]?.name : rel?.name) || 'ADD-ON'
   }
-  const imageUrl = (path: string | null) => path ? supabase.storage.from('mod-images').getPublicUrl(path).data.publicUrl : null
+  const imageUrl = mediaPath
   const cards = (items: AddOn[] | null | undefined) => (items ?? []).map(item => <ModCard key={item.id} item={item} imageUrl={imageUrl(item.thumbnail_path)} category={categoryName(item)} />)
 
   return (
