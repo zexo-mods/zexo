@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { reportAddOn, toggleFavorite } from './actions'
 import { Download, Heart, Share2, ShieldCheck, Images, ChevronRight } from 'lucide-react'
+import ModHeroGallery from '@/components/mod-hero-gallery'
 
 type Pack = {
   id: string
@@ -66,15 +67,18 @@ export default async function AddOnDetailPage({ params, searchParams }: {
         <Link href="/explore" className="rounded-full border border-zinc-800 px-4 py-2 text-xs font-bold text-zinc-300">Explore mods</Link>
       </header>
       <div className="mx-auto max-w-5xl">
-        <div className="relative aspect-[16/7] max-h-[340px] overflow-hidden bg-gradient-to-br from-amber-950 via-zinc-900 to-black sm:rounded-2xl">
-          {cover && <img src={cover} alt={addon.title} className="h-full w-full object-cover"/>}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/15 to-black/10"/>
-          <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
-            <div><p className="text-[10px] font-black tracking-[.2em] text-red-300">ZEXO • MINECRAFT BEDROCK</p><h1 className="mt-1 text-2xl font-black sm:text-4xl">{addon.title}</h1></div>
-            <span className="rounded-lg border border-white/20 bg-black/50 px-3 py-2 text-xs font-bold backdrop-blur">{(Array.isArray(addon.categories) ? addon.categories[0]?.name : addon.categories?.name) ?? 'Add-on'}</span>
-          </div>
-        </div>
+        <ModHeroGallery images={galleryImages} fallback={imageUrl(addon.thumbnail_path)} title={addon.title} />
         <div className="px-4 sm:px-6">
+          <div className="pt-5">
+            <p className="text-[10px] font-black uppercase tracking-[.2em] text-red-400">ZEXO PROTECT • MINECRAFT BEDROCK</p>
+            <div className="mt-2 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h1 className="text-2xl font-black uppercase leading-tight sm:text-3xl">{addon.title}</h1>
+                <p className="mt-1 text-xs font-semibold text-zinc-500">{(Array.isArray(addon.categories) ? addon.categories[0]?.name : addon.categories?.name) ?? 'Add-on'}</p>
+              </div>
+              <span className="shrink-0 rounded-lg border border-zinc-800 bg-[#171719] px-3 py-2 text-[10px] font-bold text-zinc-300">v{addon.version}</span>
+            </div>
+          </div>
           <div className="flex items-center justify-between gap-3 border-b border-zinc-800 py-4">
             <span className="text-xs font-bold text-zinc-500">Version {addon.version}</span>
             <div className="flex items-center gap-2">
@@ -93,7 +97,6 @@ export default async function AddOnDetailPage({ params, searchParams }: {
             ))}
             <div className="mt-4 grid grid-cols-2 gap-3 border-t border-zinc-800 pt-4 text-xs"><div className="text-zinc-500">File size <strong className="float-right text-white">{(totalSize / 1024 / 1024).toFixed(2)} MB</strong></div><div className="text-zinc-500"><Images size={13} className="mr-1 inline"/> Gallery <strong className="float-right text-white">{galleryImages.length} images</strong></div></div>
           </div>
-          {galleryImages.length > 0 && <section className="mt-6"><h2 className="mb-3 text-base font-black">Gallery</h2><div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none]">{galleryImages.map((image, i) => <a key={image.id} href={image.url} target="_blank" rel="noreferrer" className="w-40 shrink-0 overflow-hidden rounded-xl border border-zinc-800"><img src={image.url} alt={addon.title + ' screenshot ' + (i + 1)} className="aspect-video w-full object-cover"/></a>)}</div></section>}
           <section className="mt-8 border-t border-zinc-800 pt-6"><h2 className="text-xl font-black">Description</h2><div className="mt-4 rounded-xl border border-zinc-800 bg-[#111113] px-4 py-3 text-center text-xs text-zinc-400">◎ Translate</div><p className="mt-5 whitespace-pre-wrap text-sm leading-7 text-zinc-300">{addon.description}</p></section>
           <div className="mt-7 grid grid-cols-2 gap-3 rounded-xl border border-zinc-800 bg-[#101012] p-4 text-xs"><div><p className="text-zinc-500">Minecraft versions</p><p className="mt-1 font-semibold">{(addon.minecraft_versions ?? []).join(', ') || 'Not specified'}</p></div><div><p className="text-zinc-500">Downloads</p><p className="mt-1 font-semibold">{addon.download_count ?? 0}</p></div><div><p className="text-zinc-500">Credits</p><p className="mt-1 font-semibold">{addon.credits || 'Not provided'}</p></div><div><p className="text-zinc-500">License</p><p className="mt-1 font-semibold">{addon.license || 'Not specified'}</p></div></div>
           <ModRail title="Suggested Mods" items={(related ?? []) as Pack[]}/>
