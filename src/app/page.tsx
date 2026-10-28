@@ -104,7 +104,7 @@ export default async function HomePage() {
         <div className="flex items-center justify-center py-4">
           <div className="inline-flex rounded-full border border-zinc-800 bg-[#141416] p-1">
             <Link href="/" className="rounded-full bg-red-600 px-6 py-2 text-xs font-bold shadow-[0_0_18px_rgba(220,38,38,.3)]">▦ Home</Link>
-            <Link href="/explore" className="rounded-full px-6 py-2 text-xs font-semibold text-zinc-400 transition hover:text-white">⌂ For you</Link>
+            <Link href="/for-you" className="rounded-full px-6 py-2 text-xs font-semibold text-zinc-400 transition hover:text-white">⌂ For you</Link>
           </div>
         </div>
 
