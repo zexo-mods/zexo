@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { reportAddOn, toggleFavorite } from './actions'
-import { Download, Heart, Share2, ShieldCheck, Images, ArrowDownToLine, ChevronRight, MessageCircle } from 'lucide-react'
+import { Download, Heart, Share2, ShieldCheck, Images, ChevronRight } from 'lucide-react'
 
 type Pack = {
   id: string
