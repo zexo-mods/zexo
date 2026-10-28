@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import MobileBottomNav from '@/components/mobile-bottom-nav'
 import {
   Blocks, Compass, Download, Heart, Home, Search, Settings,
   UserCircle, ChevronRight, Layers3, Palette, Shirt,
