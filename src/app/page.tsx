@@ -143,12 +143,7 @@ export default async function HomePage() {
         <p className="mt-6 text-[10px] text-zinc-600">© ZEXO · Independent community marketplace. Not affiliated with Mojang or Microsoft.</p>
       </footer>
 
-      <nav className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-md items-center justify-around rounded-full border border-white/10 bg-black/90 p-2 shadow-[0_10px_50px_rgba(0,0,0,.8)] backdrop-blur-2xl">
-        <Link href="/" aria-label="Home" className="flex h-12 w-12 items-center justify-center rounded-full bg-red-600 text-white shadow-[0_0_22px_rgba(220,38,38,.35)]"><Home size={23} /></Link>
-        <Link href="/explore" aria-label="Search" className="flex h-12 w-12 items-center justify-center rounded-full text-zinc-300 transition hover:bg-zinc-800"><Search size={24} /></Link>
-        <Link href="/favorites" aria-label="Favorites" className="flex h-12 w-12 items-center justify-center rounded-full text-zinc-300 transition hover:bg-zinc-800"><Heart size={24} /></Link>
-        <Link href="/settings" aria-label="Settings" className="flex h-12 w-12 items-center justify-center rounded-full text-zinc-300 transition hover:bg-zinc-800"><Settings size={24} /></Link>
-      </nav>
+      <MobileBottomNav active="home" />
     </main>
   )
 }
