@@ -5,6 +5,7 @@ import { signOut } from '@/app/auth/actions'
 import { CreatorUploadForm } from './upload-form'
 import { updateCreatorAddOn, deleteCreatorAddOn } from './actions'
 import { AddScreenshots } from './add-screenshots'
+import { mediaPath } from '@/lib/r2'
 
 type Submission = {
   id: string; slug: string; title: string; short_description: string | null; description: string;
@@ -26,7 +27,7 @@ export default async function CreatorPage({ searchParams }: { searchParams: Prom
   ])
   const isAdmin = (roles ?? []).some(role => role.role === 'admin')
   const items = (submissions ?? []) as Submission[]
-  const imageUrl = (path: string | null) => path ? supabase.storage.from('mod-images').getPublicUrl(path).data.publicUrl : null
+  const imageUrl = mediaPath
   const counts = { total: items.length, published: items.filter(x => x.status === 'published').length, review: items.filter(x => x.status === 'pending_review').length }
 
   return <main className="min-h-screen bg-[#080809] px-4 py-6 text-white sm:px-6 lg:px-8">
