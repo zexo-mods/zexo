@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
-import { ArrowLeft, ChevronLeft, ChevronRight, Images } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ArrowRight, ChevronLeft, ChevronRight, Images } from 'lucide-react'
 
 type GalleryImage = { id: string; url: string }
 
@@ -17,15 +17,20 @@ export default function ModHeroGallery({
 }) {
   const slides = images.length ? images : fallback ? [{ id: 'cover', url: fallback }] : []
   const [active, setActive] = useState(0)
+  const router = useRouter()
   const current = slides[active]
+  const goBack = () => {
+    if (window.history.length > 1) router.back()
+    else router.push('/')
+  }
 
   if (!current) {
     return (
       <div className="relative flex aspect-[16/8] max-h-[390px] items-center justify-center bg-gradient-to-br from-zinc-800 via-zinc-950 to-black text-zinc-600">
         <Images size={42} />
-        <Link href="/explore" aria-label="Back to Explore mods" className="absolute right-4 top-4 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white shadow-lg backdrop-blur transition hover:border-red-500 hover:bg-black/80">
-          <ArrowLeft size={23} />
-        </Link>
+        <button type="button" onClick={goBack} aria-label="Go back" className="absolute right-4 top-4 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white shadow-lg backdrop-blur transition hover:border-red-500 hover:bg-black/80">
+          <ArrowRight size={23} />
+        </button>
       </div>
     )
   }
@@ -44,9 +49,9 @@ export default function ModHeroGallery({
           fetchPriority="high"
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/10" />
-        <Link href="/explore" aria-label="Back to Explore mods" className="absolute right-4 top-4 z-10 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white shadow-lg backdrop-blur transition hover:border-red-500 hover:bg-black/80">
-          <ArrowLeft size={23} />
-        </Link>
+        <button type="button" onClick={goBack} aria-label="Go back" className="absolute right-4 top-4 z-10 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-black/60 text-white shadow-lg backdrop-blur transition hover:border-red-500 hover:bg-black/80">
+          <ArrowRight size={23} />
+        </button>
         {slides.length > 1 && (
           <>
             <button type="button" onClick={() => move(-1)} aria-label="Previous screenshot" className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/55 text-white backdrop-blur">
