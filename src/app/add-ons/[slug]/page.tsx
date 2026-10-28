@@ -70,7 +70,7 @@ export default async function AddOnDetailPage({ params, searchParams }: {
   )
 
   return (
-    <main className="min-h-screen bg-[#080808] pb-28 text-white sm:pb-12">
+    <main className="min-h-screen bg-[#080808] pb-12 text-white">
       <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
         <Link href="/" className="text-2xl font-black italic tracking-tight">Z<span className="text-red-500">E</span>XO<span className="text-red-500">.</span></Link>
         <Link href="/explore" className="rounded-full border border-zinc-800 px-4 py-2 text-xs font-bold text-zinc-300 transition hover:border-red-500/60">Explore mods</Link>
@@ -142,7 +142,7 @@ export default async function AddOnDetailPage({ params, searchParams }: {
           </section>
         </div>
       </div>
-      {firstFile && <div className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-800 bg-[#09090b]/95 p-3 backdrop-blur-xl sm:hidden"><a href={'/download/' + firstFile.id} className="flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-3.5 text-sm font-black text-white shadow-lg shadow-red-950/40"><Download size={18}/> DOWNLOAD · {formatBytes(firstFile.file_size)}</a></div>}
+
     </main>
   )
 }
