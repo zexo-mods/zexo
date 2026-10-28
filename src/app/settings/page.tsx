@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import MobileBottomNav from '@/components/mobile-bottom-nav'
 import { redirect } from 'next/navigation'
 import { ArrowLeft, UserRound, Heart, Upload, ShieldCheck } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
@@ -18,7 +19,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     supabase.from('user_roles').select('role').eq('user_id', userId),
   ])
   const isAdmin = (roles ?? []).some(role=>role.role === 'admin')
-  return <main className="min-h-screen bg-[#080809] px-4 py-7 text-white sm:px-6"><div className="mx-auto max-w-4xl">
+  return <main className="min-h-screen bg-[#080809] px-4 py-7 pb-28 text-white sm:px-6"><div className="mx-auto max-w-4xl">
     <header className="flex items-center justify-between border-b border-zinc-800 pb-5"><Link href="/" className="text-xl font-black italic tracking-widest">ZEXO<span className="text-red-500">.</span></Link><Link href="/creator" className="text-sm text-zinc-400 hover:text-white">Creator portal</Link></header>
     <Link href="/" className="mt-7 inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-white"><ArrowLeft size={16}/> Back home</Link>
     <div className="mt-7"><p className="text-xs font-black tracking-[.2em] text-red-400">ACCOUNT</p><h1 className="mt-2 text-3xl font-black">Settings</h1><p className="mt-2 text-sm text-zinc-500">Manage your ZEXO profile and account shortcuts.</p></div>
@@ -40,5 +41,5 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         <form action={signOut} className="rounded-2xl border border-zinc-800 bg-[#101012] p-4"><p className="text-sm font-bold">Sign out</p><p className="mt-1 text-xs text-zinc-500">Sign out of this device.</p><button className="mt-4 w-full rounded-xl border border-zinc-700 px-4 py-2.5 text-sm font-semibold hover:border-red-500/50">Sign out</button></form>
       </aside>
     </div>
-  </div></main>
+  </div><MobileBottomNav active="settings" /></main>
 }
