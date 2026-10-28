@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { signOut } from '@/app/auth/actions'
-import { moderateAddOn, moderateReport, updateAdminAddOn, deleteAdminAddOn } from './actions'
+import { moderateAddOn, moderateReport, updateAdminAddOn, deleteAdminAddOn, reviewFile } from './actions'
 
 export default async function AdminPage({ searchParams }: { searchParams: Promise<{ error?: string; updated?: string; deleted?: string }> }) {
   const params = await searchParams
@@ -21,7 +21,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const [{ data: queue, error }, { data: reports }, { data: allAddons }] = await Promise.all([
     admin.from('add_ons').select('id,title,description,created_at,creator_id,add_on_images(id,image_path,display_order),add_on_files(id,file_name,file_type,file_size,scan_status,storage_path)').eq('status', 'pending_review').order('created_at', { ascending: true }),
     admin.from('reports').select('id,add_on_id,reason,details,status,created_at').in('status', ['open', 'reviewing']).order('created_at', { ascending: true }),
-    admin.from('add_ons').select('id,title,slug,short_description,description,status,creator_id,created_at,download_count').order('created_at', { ascending: false }).limit(100),
+    admin.from('add_ons').select('id,title,slug,short_description,description,status,creator_id,created_at,download_count,add_on_files(id,file_name,file_type,file_size,scan_status,storage_path)').order('created_at', { ascending: false }).limit(100),
   ])
 
   const reviewQueue = await Promise.all((queue ?? []).map(async item => ({
@@ -54,7 +54,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
               <span><i className="rounded-full bg-zinc-800 px-2.5 py-1 text-[10px] not-italic font-bold uppercase text-zinc-300">{item.status.replaceAll("_"," ")}</i></span><span className="text-xs text-zinc-400">{item.download_count ?? 0}</span><span className="text-xs font-bold text-red-300">Edit / delete ↓</span>
             </summary>
             <div className="grid gap-4 border-t border-zinc-800 bg-black/30 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_180px]">
-              <form action={updateAdminAddOn} className="grid gap-3 sm:grid-cols-2"><input type="hidden" name="add_on_id" value={item.id}/>
+              <div className="space-y-3">{(item.add_on_files ?? []).map(file => <div key={file.id} className="rounded-xl border border-zinc-800 bg-zinc-950 p-3"><div className="flex flex-wrap items-center justify-between gap-2"><div><p className="text-xs font-semibold text-zinc-200">{file.file_name}</p><p className="mt-1 text-[10px] text-zinc-500">{file.file_type.toUpperCase()} · {(file.file_size / 1024 / 1024).toFixed(2)} MB · review: {file.scan_status}</p></div><span className={'rounded-full px-2 py-1 text-[10px] font-bold uppercase ' + (file.scan_status === 'clean' ? 'bg-emerald-500/10 text-emerald-300' : file.scan_status === 'quarantined' ? 'bg-amber-500/10 text-amber-300' : 'bg-zinc-800 text-zinc-400')}>{file.scan_status}</span></div><form action={reviewFile} className="mt-3 flex flex-wrap gap-2"><input type="hidden" name="file_id" value={file.id}/><button name="scan_status" value="clean" className="rounded-lg bg-emerald-600/15 px-3 py-2 text-xs font-bold text-emerald-300">Approve clean file</button><button name="scan_status" value="quarantined" className="rounded-lg bg-amber-600/15 px-3 py-2 text-xs font-bold text-amber-300">Quarantine</button><button name="scan_status" value="rejected" className="rounded-lg bg-red-600/15 px-3 py-2 text-xs font-bold text-red-300">Reject file</button></form></div>)}</div><form action={updateAdminAddOn} className="grid gap-3 sm:grid-cols-2"><input type="hidden" name="add_on_id" value={item.id}/>
                 <label className="text-xs text-zinc-400">Title<input name="title" required minLength={3} maxLength={100} defaultValue={item.title} className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white"/></label>
                 <label className="text-xs text-zinc-400">Status<select name="status" defaultValue={item.status} className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white"><option value="draft">Draft</option><option value="pending_review">Pending review</option><option value="published">Published</option><option value="changes_requested">Changes requested</option><option value="rejected">Rejected</option><option value="suspended">Suspended</option></select></label>
                 <label className="text-xs text-zinc-400 sm:col-span-2">Short description<input name="short_description" maxLength={240} defaultValue={item.short_description ?? ""} className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-white"/></label>
