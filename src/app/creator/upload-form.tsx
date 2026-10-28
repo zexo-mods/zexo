@@ -50,18 +50,24 @@ export function CreatorUploadForm({ categories }: { categories: Category[] }) {
         id = created.id; setDraftId(id)
       }
       const packPath = auth.user.id + '/' + id + '/' + crypto.randomUUID() + '.' + ext
-      const { error: packError } = await supabase.storage.from('mod-files').upload(packPath, pack, { contentType: pack.type || 'application/octet-stream', upsert: false })
-      if (packError) throw new Error('Pack upload failed: ' + packError.message)
-      uploadedPaths.push(packPath)
-      const { error: fileRowError } = await supabase.from('add_on_files').insert({ add_on_id: id, storage_path: packPath, file_name: pack.name, file_type: ext, file_size: pack.size, file_version: String(data.get('version') || '1.0.0') })
+      const packForm = new FormData(); packForm.set('addOnId', id); packForm.set('kind', 'pack'); packForm.set('file', pack)
+      const packResponse = await fetch('/api/creator/upload', { method: 'POST', body: packForm })
+      const packResult = await packResponse.json() as { path?: string; error?: string }
+      if (!packResponse.ok || !packResult.path) throw new Error('Pack upload failed: ' + (packResult.error || 'Unknown error'))
+      const finalPackPath = packResult.path
+      uploadedPaths.push(finalPackPath)
+      const { error: fileRowError } = await supabase.from('add_on_files').insert({ add_on_id: id, storage_path: finalPackPath, file_name: pack.name, file_type: ext, file_size: pack.size, file_version: String(data.get('version') || '1.0.0') })
       if (fileRowError) throw new Error('Could not save pack details: ' + fileRowError.message)
 
       let logoPath: string | null = null
       if (logo instanceof File && logo.size > 0) {
         const logoExt = logo.type === 'image/jpeg' ? 'jpg' : logo.type === 'image/png' ? 'png' : 'webp'
         logoPath = auth.user.id + '/' + id + '/logo/' + crypto.randomUUID() + '.' + logoExt
-        const { error } = await supabase.storage.from('mod-images').upload(logoPath, logo, { contentType: logo.type, upsert: false })
-        if (error) throw new Error('Logo upload failed: ' + error.message)
+        const logoForm = new FormData(); logoForm.set('addOnId', id); logoForm.set('kind', 'logo'); logoForm.set('file', logo)
+        const logoResponse = await fetch('/api/creator/upload', { method: 'POST', body: logoForm })
+        const logoResult = await logoResponse.json() as { path?: string; error?: string }
+        if (!logoResponse.ok || !logoResult.path) throw new Error('Logo upload failed: ' + (logoResult.error || 'Unknown error'))
+        logoPath = logoResult.path
         uploadedPaths.push(logoPath)
       }
       const imageRows: { add_on_id: string; image_path: string; display_order: number }[] = []
@@ -69,10 +75,12 @@ export function CreatorUploadForm({ categories }: { categories: Category[] }) {
         const shot = screenshots[index]
         const imageExt = shot.type === 'image/jpeg' ? 'jpg' : shot.type === 'image/png' ? 'png' : 'webp'
         const path = auth.user.id + '/' + id + '/screenshots/' + crypto.randomUUID() + '.' + imageExt
-        const { error } = await supabase.storage.from('mod-images').upload(path, shot, { contentType: shot.type, upsert: false })
-        if (error) throw new Error('Screenshot upload failed: ' + error.message)
-        uploadedPaths.push(path)
-        imageRows.push({ add_on_id: id, image_path: path, display_order: index })
+        const shotForm = new FormData(); shotForm.set('addOnId', id); shotForm.set('kind', 'screenshot'); shotForm.set('file', shot)
+        const shotResponse = await fetch('/api/creator/upload', { method: 'POST', body: shotForm })
+        const shotResult = await shotResponse.json() as { path?: string; error?: string }
+        if (!shotResponse.ok || !shotResult.path) throw new Error('Screenshot upload failed: ' + (shotResult.error || 'Unknown error'))
+        uploadedPaths.push(shotResult.path)
+        imageRows.push({ add_on_id: id, image_path: shotResult.path, display_order: index })
       }
       if (imageRows.length || logoPath) {
         const { error } = await supabase.from('add_on_images').insert(imageRows)
