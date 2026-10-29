@@ -90,7 +90,7 @@ export default async function HomePage() {
   }))
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#080809] pb-40 text-white">
+    <main className="min-h-screen overflow-hidden bg-[#080809] pb-[calc(8rem+env(safe-area-inset-bottom))] text-white">
       <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#080809]/95 px-4 py-3 backdrop-blur-xl sm:px-6">
         <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-5">
           <Link href="/" aria-label="ZEXO home" className="flex h-10 w-12 shrink-0 items-center justify-start text-2xl font-black italic tracking-tighter"><span className="text-red-500">Z</span><span className="text-white">X</span></Link>
