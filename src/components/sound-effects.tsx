@@ -67,7 +67,7 @@ export default function SoundEffects() {
       aria-label={enabled ? 'Turn sound effects off' : 'Turn sound effects on'}
       title={enabled ? 'Sound effects on' : 'Sound effects off'}
       data-no-sound
-      className="fixed bottom-24 right-4 z-[60] flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-zinc-950/90 text-zinc-100 shadow-lg backdrop-blur-xl transition hover:bg-zinc-800"
+      className="fixed bottom-[calc(env(safe-area-inset-bottom)+104px)] right-4 z-[60] flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-zinc-950/90 text-zinc-100 shadow-lg backdrop-blur-xl transition hover:bg-zinc-800"
     >
       {enabled ? <Volume2 size={19} /> : <VolumeX size={19} />}
     </button>
