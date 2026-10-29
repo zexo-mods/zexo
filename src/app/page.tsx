@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import MobileBottomNav from '@/components/mobile-bottom-nav'
 import {
-  Blocks, Compass, Download, Heart, Home, Search, Settings,
+  Blocks, Compass, Download, Heart, Home, Settings,
   UserCircle, ChevronRight, Layers3, Palette, Shirt,
 } from 'lucide-react'
 
@@ -92,11 +92,8 @@ export default async function HomePage() {
   return (
     <main className="min-h-screen overflow-hidden bg-[#080809] pb-28 text-white">
       <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#080809]/95 px-4 py-3 backdrop-blur-xl sm:px-6">
-        <div className="mx-auto flex max-w-7xl items-center gap-3">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
           <Link href="/" aria-label="ZEXO home" className="flex h-10 w-12 shrink-0 items-center justify-center text-2xl font-black italic tracking-tighter"><span className="text-red-500">Z</span><span className="text-white">X</span></Link>
-          <form action="/explore" className="flex h-10 min-w-0 flex-1 items-center gap-3 rounded-full border border-zinc-800 bg-[#171719] px-4 transition focus-within:border-red-500/70">
-            <Search size={17} className="shrink-0 text-zinc-500" /><input name="q" placeholder="Search mods..." className="w-full min-w-0 bg-transparent text-sm outline-none placeholder:text-zinc-500" />
-          </form>
           <Link href={user ? '/creator' : '/login'} aria-label="Account" className="relative ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-red-600/80 bg-gradient-to-br from-red-950 to-zinc-950"><UserCircle size={23} className="text-red-300" /><span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-black bg-emerald-400" /></Link>
         </div>
       </header>
