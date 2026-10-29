@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import SoundEffects from '@/components/sound-effects'
 
 export const metadata: Metadata = {
   title: 'ZEXO — Minecraft Bedrock Add-ons',
@@ -8,5 +9,5 @@ export const metadata: Metadata = {
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>
+  return <html lang="en"><body>{children}<SoundEffects /></body></html>
 }
