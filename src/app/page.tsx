@@ -90,37 +90,33 @@ export default async function HomePage() {
   }))
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#080809] pb-28 text-white">
+    <main className="min-h-screen overflow-hidden bg-[#080809] pb-40 text-white">
       <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#080809]/95 px-4 py-3 backdrop-blur-xl sm:px-6">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
-          <Link href="/" aria-label="ZEXO home" className="flex h-10 w-12 shrink-0 items-center justify-center text-2xl font-black italic tracking-tighter"><span className="text-red-500">Z</span><span className="text-white">X</span></Link>
-          <Link href={user ? '/creator' : '/login'} aria-label="Account" className="relative ml-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-red-600/80 bg-gradient-to-br from-red-950 to-zinc-950"><UserCircle size={23} className="text-red-300" /><span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-black bg-emerald-400" /></Link>
+        <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-5">
+          <Link href="/" aria-label="ZEXO home" className="flex h-10 w-12 shrink-0 items-center justify-start text-2xl font-black italic tracking-tighter"><span className="text-red-500">Z</span><span className="text-white">X</span></Link>
+          <nav aria-label="Home sections" className="mx-auto flex min-w-0 items-center rounded-full border border-zinc-800 bg-[#141416] p-1">
+            <Link href="/" aria-current="page" className="inline-flex items-center gap-2 rounded-full bg-red-600 px-4 py-2.5 text-xs font-bold text-white shadow-[0_0_18px_rgba(220,38,38,.28)] sm:px-6"><Home size={15} />Home</Link>
+            <Link href="/for-you" className="inline-flex items-center gap-2 rounded-full px-3 py-2.5 text-xs font-semibold text-zinc-400 transition hover:text-white sm:px-6"><Home size={15} />For you</Link>
+          </nav>
+          <Link href={user ? '/creator' : '/login'} aria-label="Account" className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-red-600/80 bg-gradient-to-br from-red-950 to-zinc-950"><UserCircle size={23} className="text-red-300" /><span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-black bg-emerald-400" /></Link>
         </div>
       </header>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex items-center justify-center py-4">
-          <div className="inline-flex rounded-full border border-zinc-800 bg-[#141416] p-1">
-            <Link href="/" className="rounded-full bg-red-600 px-6 py-2 text-xs font-bold shadow-[0_0_18px_rgba(220,38,38,.3)]">▦ Home</Link>
-            <Link href="/for-you" className="rounded-full px-6 py-2 text-xs font-semibold text-zinc-400 transition hover:text-white">⌂ For you</Link>
+        <section className="relative mt-4 h-[230px] overflow-hidden rounded-[26px] border border-white/10 bg-gradient-to-br from-[#293b3b] via-[#17191c] to-black shadow-[0_18px_50px_rgba(0,0,0,.35)] sm:mt-6 sm:h-[340px]">
+          {featured && imageFor(featured) ? <img src={imageFor(featured)} alt={featured.title} className="absolute inset-0 h-full w-full object-cover" /> : <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_20%,rgba(239,68,68,.35),transparent_40%),linear-gradient(135deg,#263b3b,#09090b)]" />}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-black/10" />
+          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 sm:p-7">
+            <div className="min-w-0">
+              <p className="mb-2 text-[9px] font-black tracking-[.22em] text-red-300 sm:text-xs">FEATURED BEDROCK CONTENT</p>
+              <h1 className="max-w-[75vw] truncate text-xl font-black uppercase leading-tight text-white drop-shadow-lg sm:text-3xl">{featured?.title ?? 'DISCOVER NEW WORLDS'}</h1>
+              <span className="mt-2 inline-flex rounded-md bg-red-600 px-3 py-1.5 text-[10px] font-black tracking-wide text-white">{featured ? categoryNames[Number(featured.category_id)] ?? 'ADD-ONS' : 'EXPLORE'}</span>
+            </div>
+            {featured ? <Link href={'/add-ons/' + featured.slug} aria-label={'View ' + featured.title} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-black shadow-lg transition hover:scale-105"><Download size={23} strokeWidth={2.8} /></Link> : <Link href="/explore" className="rounded-full bg-red-600 px-4 py-3 text-xs font-black">EXPLORE</Link>}
           </div>
-        </div>
-
-        <section className="featured-hero relative mt-1 min-h-[190px] overflow-hidden rounded-[24px] border border-white/10 bg-gradient-to-br from-[#41472e] via-[#20231c] to-[#090909] p-5 sm:min-h-[260px] sm:p-9">
-          {featured && imageFor(featured) && <img src={imageFor(featured)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" />}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-black/15" />
-          <div className="absolute inset-0 opacity-25" style={{ backgroundImage: 'radial-gradient(ellipse at 75% 20%, #d1d5a0 0, transparent 45%),linear-gradient(135deg,transparent 40%,#6c5424 100%)' }} />
-          <div className="relative z-10 max-w-xl">
-            <p className="text-[9px] font-black tracking-[.28em] text-red-300 sm:text-[10px]">THE BEDROCK ADD-ON HUB</p>
-            <h1 className="mt-3 text-4xl font-black uppercase leading-[.92] tracking-tight sm:text-6xl">DIVE INTO<br /><span className="text-red-500">NEW WORLDS.</span></h1>
-            <p className="mt-3 max-w-sm text-xs leading-5 text-zinc-300 sm:mt-4 sm:text-sm">Discover the best add-ons, textures, maps, skins and worlds made for Minecraft Bedrock.</p>
-            <Link href="/explore" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2.5 text-[11px] font-black tracking-wide shadow-[0_8px_28px_rgba(220,38,38,.25)] transition hover:bg-red-500 sm:mt-6 sm:px-5 sm:py-3">EXPLORE CONTENT <ChevronRight size={15} /></Link>
-          </div>
-          <div className="pointer-events-none absolute -bottom-20 -right-10 h-64 w-64 rounded-full border-[30px] border-white/5 sm:h-80 sm:w-80" />
-          <div className="absolute bottom-4 right-5 hidden text-right sm:block"><p className="text-5xl font-black italic text-white/10">ZEXO</p><p className="text-[9px] font-bold tracking-[.3em] text-white/40">PLAY DIFFERENT</p></div>
         </section>
 
-        <div className="mt-5 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none]">
+        <div className="mt-5 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {categoryMeta.map(({ label, href, icon: Icon, color }) => <Link key={label} href={href} className={'inline-flex shrink-0 items-center gap-2 rounded-full border bg-[#101010] px-4 py-2 text-[10px] font-black tracking-wide transition hover:bg-white/5 ' + color}><Icon size={13} />{label}</Link>)}
         </div>
 
