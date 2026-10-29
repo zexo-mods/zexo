@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Heart, ArrowLeft } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { removeFavorite } from './actions'
 import MobileBottomNav from '@/components/mobile-bottom-nav'
@@ -29,11 +29,10 @@ export default async function FavoritesPage({ searchParams }: { searchParams: Pr
     <div className="mx-auto max-w-6xl">
       <header className="flex items-center justify-between border-b border-zinc-800 pb-5">
         <Link href="/" className="text-xl font-black italic tracking-widest">ZEXO<span className="text-red-500">.</span></Link>
-        <Link href="/settings" className="text-sm text-zinc-400 hover:text-white">Settings</Link>
+        
       </header>
-      <Link href="/" className="mt-7 inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-white"><ArrowLeft size={16}/> Back home</Link>
       <div className="mt-7 flex items-end justify-between gap-4">
-        <div><p className="text-xs font-black tracking-[.2em] text-red-400">YOUR LIBRARY</p><h1 className="mt-2 text-3xl font-black">Saved favourites</h1><p className="mt-2 text-sm text-zinc-500">Your bookmarked Bedrock creations in one place.</p></div>
+        <div><p className="text-xs font-black tracking-[.2em] text-red-400">YOUR LIBRARY</p><h1 className="mt-2 text-3xl font-black">Saved favourites</h1></div>
         <span className="rounded-full border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-400">{rows.length} saved</span>
       </div>
       {params.removed && <p className="mt-5 rounded-xl border border-emerald-900 bg-emerald-950/30 p-3 text-sm text-emerald-300">Removed from your favourites.</p>}
