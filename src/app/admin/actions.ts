@@ -138,3 +138,17 @@ export async function deleteAdminAddOn(formData: FormData) {
   if (error) redirect('/admin?error=' + encodeURIComponent(error.message))
   redirect('/admin?deleted=1#manage')
 }
+
+
+export async function setCreatorVerification(formData: FormData) {
+  const { admin, userId } = await requireAdmin()
+  const profileId = String(formData.get('profile_id') ?? '')
+  const status = String(formData.get('verification_status') ?? '')
+  if (!profileId || !['verified', 'unverified'].includes(status)) redirect('/admin?error=Invalid%20creator%20verification%20request')
+  const { data: profile, error: lookupError } = await admin.from('creator_profiles').select('id,user_id,display_name').eq('id', profileId).maybeSingle()
+  if (lookupError || !profile) redirect('/admin?error=Creator%20profile%20not%20found')
+  const { error } = await admin.from('creator_profiles').update({ verification_status: status }).eq('id', profileId)
+  if (error) redirect('/admin?error=' + encodeURIComponent(error.message))
+  await admin.from('admin_audit_logs').insert({ admin_id: userId, action: status === 'verified' ? 'creator_verified' : 'creator_verification_revoked', target_type: 'creator_profile', target_id: profileId, metadata: { user_id: profile.user_id, display_name: profile.display_name } })
+  redirect('/admin?updated=1#verification')
+}
