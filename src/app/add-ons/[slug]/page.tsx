@@ -73,7 +73,7 @@ export default async function AddOnDetailPage({ params, searchParams }: {
   return (
     <main className="min-h-screen bg-[#080808] pb-12 text-white">
       <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
-        <Link href="/" className="text-2xl font-black italic tracking-tight">Z<span className="text-red-500">E</span>XO<span className="text-red-500">.</span></Link>
+        <Link href="/" aria-label="ZEXO home" className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl"><img src="/images/zexo-logo.webp" alt="ZEXO" className="h-full w-full object-contain" /></Link>
         <Link href="/explore" className="rounded-full border border-zinc-800 px-4 py-2 text-xs font-bold text-zinc-300 transition hover:border-red-500/60">Explore mods</Link>
       </header>
       <div className="mx-auto max-w-5xl">
