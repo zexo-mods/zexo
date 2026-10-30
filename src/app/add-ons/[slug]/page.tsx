@@ -94,7 +94,7 @@ export default async function AddOnDetailPage({ params, searchParams }: {
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-y border-zinc-800 py-3">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] text-zinc-500">
-              <span className="flex items-center gap-1.5"><UserRound size={13}/>{creator?.display_name || 'ZEXO Creator'}</span>
+              <span className="flex items-center gap-1.5"><UserRound size={13}/>{creator?.display_name || 'ZEXO Creator'}{creator?.verification_status === 'verified' && <span title="Verified ZEXO creator" aria-label="Verified ZEXO creator" className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-sky-500 text-[10px] font-black text-white">✓</span>}</span>
               {publishedDate && <span className="flex items-center gap-1.5"><CalendarDays size={13}/>{new Date(publishedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>}
             </div>
             <div className="flex items-center gap-2">
