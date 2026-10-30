@@ -26,7 +26,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   return <main className="min-h-screen bg-[#080B12] px-4 pb-32 pt-6 text-white sm:px-6 sm:pt-8">
     <div className="mx-auto max-w-2xl">
       <header className="mb-8 flex items-center justify-between">
-        <Link href="/" aria-label="ZEXO home" className="text-3xl font-black italic tracking-[-.12em] text-white">Z<span className="text-sky-400">X</span></Link>
+        <Link href="/" aria-label="ZEXO home" className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl"><img src="/images/zexo-logo.webp" alt="ZEXO" className="h-full w-full object-contain" /></Link>
         <span className="text-sm font-semibold text-zinc-400">Settings</span>
       </header>
 
