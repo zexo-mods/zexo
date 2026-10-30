@@ -28,7 +28,7 @@ export default async function FavoritesPage({ searchParams }: { searchParams: Pr
   return <main className="min-h-screen bg-[#080809] px-4 py-7 pb-28 text-white sm:px-6">
     <div className="mx-auto max-w-6xl">
       <header className="flex items-center justify-between border-b border-zinc-800 pb-5">
-        <Link href="/" className="text-xl font-black italic tracking-widest">ZEXO<span className="text-red-500">.</span></Link>
+        <Link href="/" aria-label="ZEXO home" className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl"><img src="/images/zexo-logo.webp" alt="ZEXO" className="h-full w-full object-contain" /></Link>
         
       </header>
       <div className="mt-7 flex items-end justify-between gap-4">
