@@ -37,16 +37,32 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Set ZEXO app version
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("android/app/build.gradle")
+          content = path.read_text()
+          import re
+          content, code_count = re.subn(r'versionCode\\s+\\d+', 'versionCode 2601', content, count=1)
+          content, name_count = re.subn(r'versionName\\s+"[^"]+"', 'versionName "26.1"', content, count=1)
+          if not code_count or not name_count:
+              raise SystemExit("Could not set Android versionCode/versionName in generated Gradle file")
+          path.write_text(content)
+          print("Configured ZEXO v26.1 (versionCode 2601)")
+          PY
+
       - name: Build debug APK
         working-directory: android
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk ../ZEXO-v26.1.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ZEXO-Android-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: ZEXO-v26.1-APK
+          path: ZEXO-v26.1.apk
           if-no-files-found: error
           retention-days: 14
