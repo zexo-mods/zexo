@@ -53,7 +53,7 @@ export default async function ForYouPage({ searchParams }: { searchParams: Promi
     <main className="min-h-screen bg-[#080809] pb-28 text-white">
       <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#080809]/95 px-4 py-4 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <Link href="/" className="text-2xl font-black italic tracking-tight">Z<span className="text-red-500">E</span>XO<span className="text-red-500">.</span></Link>
+          <Link href="/" aria-label="ZEXO home" className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl"><img src="/images/zexo-logo.webp" alt="ZEXO" className="h-full w-full object-contain" /></Link>
           <Link href="/explore" className="rounded-full border border-zinc-800 px-4 py-2 text-xs font-bold text-zinc-300 hover:border-red-500/60">Explore all</Link>
         </div>
       </header>
