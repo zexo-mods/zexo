@@ -33,7 +33,7 @@ export default async function CreatorPage({ searchParams }: { searchParams: Prom
   return <main className="min-h-screen bg-[#080809] px-4 py-6 text-white sm:px-6 lg:px-8">
     <div className="mx-auto max-w-7xl">
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-800 pb-6">
-        <div><Link href="/" className="text-2xl font-black italic tracking-[.18em]">ZEXO<span className="text-red-500">.</span></Link><p className="mt-1 text-xs font-bold uppercase tracking-[.2em] text-zinc-600">Creator studio</p></div>
+        <div><Link href="/" aria-label="ZEXO home" className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl"><img src="/images/zexo-logo.webp" alt="ZEXO" className="h-full w-full object-contain" /></Link><p className="mt-1 text-xs font-bold uppercase tracking-[.2em] text-zinc-600">Creator studio</p></div>
         <div className="flex flex-wrap items-center gap-2"><Link href="/" className="rounded-full border border-zinc-800 px-4 py-2 text-sm text-zinc-300">Marketplace</Link>{isAdmin && <Link href="/admin" className="rounded-full border border-red-500/40 px-4 py-2 text-sm text-red-300">Admin console</Link>}<form action={signOut}><button className="rounded-full border border-zinc-700 px-4 py-2 text-sm">Sign out</button></form></div>
       </header>
 
