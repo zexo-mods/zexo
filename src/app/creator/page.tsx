@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/app/auth/actions'
-import { CreatorUploadForm } from './upload-form'
 import { updateCreatorAddOn, deleteCreatorAddOn } from './actions'
 import { AddScreenshots } from './add-screenshots'
 import { mediaPath } from '@/lib/r2'
@@ -39,7 +38,7 @@ export default async function CreatorPage({ searchParams }: { searchParams: Prom
 
       <section className="py-8">
         <p className="text-xs font-black tracking-[.22em] text-sky-400">CREATOR WORKSPACE</p>
-        <div className="mt-2 flex flex-wrap items-end justify-between gap-4"><div><h1 className="text-3xl font-black sm:text-4xl">Your creations</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">Upload Bedrock mods, add screenshots, manage your releases and track moderation status.</p></div><a href="#upload" className="rounded-xl bg-sky-500 px-5 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-sky-500/15 transition hover:bg-sky-400">＋ Upload a mod</a></div>
+        <div className="mt-2 flex flex-wrap items-end justify-between gap-4"><div><h1 className="text-3xl font-black sm:text-4xl">Your creations</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">Upload Bedrock mods, add screenshots, manage your releases and track moderation status.</p></div><Link href="/creator/upload" className="rounded-xl bg-sky-500 px-5 py-3 text-sm font-bold text-slate-950 shadow-lg shadow-sky-500/15 transition hover:bg-sky-400">＋ Upload a mod</Link></div>
         {params.error && <p className="mt-5 rounded-xl border border-red-900 bg-red-950/40 p-3 text-sm text-red-300">{params.error}</p>}
         {params.submitted && <p className="mt-5 rounded-xl border border-emerald-900 bg-emerald-950/30 p-3 text-sm text-emerald-300">Submission sent for review.</p>}
         {params.updated && <p className="mt-5 rounded-xl border border-emerald-900 bg-emerald-950/30 p-3 text-sm text-emerald-300">Your changes were saved.</p>}
@@ -74,10 +73,7 @@ export default async function CreatorPage({ searchParams }: { searchParams: Prom
           </div>
         </section>
 
-        <section id="upload" className="rounded-2xl border border-sky-400/20 bg-gradient-to-b from-[#101c2c] to-[#0b111b] p-4 shadow-[0_20px_60px_rgba(0,0,0,.25)] sm:p-5">
-          <p className="text-[10px] font-black tracking-[.2em] text-sky-400">UPLOAD CENTER</p><h2 className="mt-2 text-xl font-black">Submit a creation</h2><p className="mt-2 text-xs leading-5 text-zinc-500">Pack file plus up to 10 screenshots. New uploads remain private until approved.</p>
-          <CreatorUploadForm categories={categories ?? []}/>
-        </section>
+
       </div>
     </div>
   </main>
