@@ -9,9 +9,9 @@ export const metadata: Metadata = {
   description: 'Discover Minecraft Bedrock add-ons, maps, shaders, resource packs and worlds from creators.',
   applicationName: 'ZEXO',
   icons: {
-    icon: '/images/zexo-logo.svg',
-    shortcut: '/images/zexo-logo.svg',
-    apple: '/images/zexo-logo.svg',
+    icon: '/images/zexo-logo.webp',
+    shortcut: '/images/zexo-logo.webp',
+    apple: '/images/zexo-logo.webp',
   },
 }
 

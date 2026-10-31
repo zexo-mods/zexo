@@ -91,7 +91,7 @@ export default async function HomePage() {
     <main className="min-h-screen overflow-hidden bg-[#080809] pb-[calc(8rem+env(safe-area-inset-bottom))] text-white">
       <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#080809]/95 px-4 pb-3 pt-[calc(env(safe-area-inset-top)+12px)] backdrop-blur-xl sm:px-6">
         <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-2 sm:gap-5">
-          <Link href="/" aria-label="ZEXO home" className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl sm:h-16 sm:w-16"><img src="/images/zexo-logo.svg" alt="ZEXO" width={64} height={64} className="h-full w-full object-contain" /></Link>
+          <Link href="/" aria-label="ZEXO home" className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl sm:h-16 sm:w-16"><img src="/images/zexo-logo.webp" alt="ZEXO" width={64} height={64} className="h-full w-full object-contain" /></Link>
           <nav aria-label="Home sections" className="mx-auto flex min-w-0 items-center rounded-full border border-zinc-800 bg-[#141416] p-1">
             <Link href="/" aria-current="page" className="inline-flex items-center gap-2 rounded-full bg-red-600 px-4 py-2.5 text-xs font-bold text-white shadow-[0_0_18px_rgba(220,38,38,.28)] sm:px-6"><Home size={15} />Home</Link>
             <Link href="/for-you" className="inline-flex items-center gap-2 rounded-full px-3 py-2.5 text-xs font-semibold text-zinc-400 transition hover:text-white sm:px-6"><Home size={15} />For you</Link>
