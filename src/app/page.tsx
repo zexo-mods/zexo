@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import MobileBottomNav from '@/components/mobile-bottom-nav'
+import { mediaPath } from '@/lib/r2'
 import {
   Blocks, Compass, Download, Heart, Home, Settings,
   UserCircle, ChevronRight, Layers3, Palette, Shirt,
@@ -64,12 +65,9 @@ export default async function HomePage() {
   let addons: Pack[] = []
   let user: { email?: string } | null = null
   const categoryNames: Record<number, string> = { 1: 'ADD-ONS', 2: 'SHADERS', 3: 'MAPS', 4: 'TEXTURES', 5: 'SKINS', 6: 'WORLDS' }
-  let imageFor: (item: Pack) => string | undefined = () => undefined
+  const imageFor = (item: Pack) => mediaPath(item.thumbnail_path) ?? undefined
   try {
     const supabase = await createClient()
-    imageFor = (item: Pack) => item.thumbnail_path
-      ? supabase.storage.from('mod-images').getPublicUrl(item.thumbnail_path).data.publicUrl
-      : undefined
     const [{ data: rows }, { data: categories }, { data: { user: currentUser } }] = await Promise.all([
       supabase.from('add_ons').select('id,title,slug,short_description,version,download_count,category_id,thumbnail_path,featured').eq('status', 'published').order('featured', { ascending: false }).order('published_at', { ascending: false }).limit(60),
       supabase.from('categories').select('id,name').eq('active', true),
